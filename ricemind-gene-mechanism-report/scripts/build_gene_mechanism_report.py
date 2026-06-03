@@ -1181,49 +1181,6 @@ GENERIC_KEYWORD_STOPWORDS = {
     "with",
 }
 
-POSITIVE_DIRECTION_TERMS = [
-    "promote",
-    "promotes",
-    "enhance",
-    "enhanced",
-    "increase",
-    "increased",
-    "improve",
-    "improved",
-    "activate",
-    "activated",
-    "up-regulated",
-    "upregulated",
-    "positive regulator",
-    "confers resistance",
-    "resistant",
-    "tolerant",
-    "higher",
-    "more",
-]
-
-NEGATIVE_DIRECTION_TERMS = [
-    "inhibit",
-    "inhibited",
-    "repress",
-    "repressed",
-    "suppress",
-    "suppressed",
-    "decrease",
-    "decreased",
-    "reduce",
-    "reduced",
-    "down-regulated",
-    "downregulated",
-    "negative regulator",
-    "susceptible",
-    "hypersensitive",
-    "delay",
-    "delayed",
-    "lower",
-    "less",
-]
-
 TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]{2,}")
 
 
@@ -1361,58 +1318,6 @@ def temporal_hotspot_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[L
             truncate(interpretation, 240),
         ])
     return rows
-
-
-def rows_with_terms(rows: List[Dict[str, str]], terms: Sequence[str]) -> List[Dict[str, str]]:
-    lowered = [term.lower() for term in terms]
-    return [row for row in rows if any(term in f"{row.get('trait', '')} {row.get('sentence', '')}".lower() for term in lowered)]
-
-
-def conflict_context_groups(evidence: List[Dict[str, str]], limit: int = 12) -> List[Tuple[str, List[Dict[str, str]]]]:
-    groups: List[Tuple[str, List[Dict[str, str]]]] = []
-    seen_keys = set()
-
-    trait_counts = Counter(row.get("trait", "").strip() for row in evidence if row.get("trait", "").strip())
-    for trait, _ in trait_counts.most_common(limit):
-        topic_rows = [row for row in evidence if row.get("trait", "").strip() == trait]
-        if len(topic_rows) >= 3:
-            groups.append((trait, topic_rows))
-            seen_keys.add(("trait", trait.lower()))
-
-    for keyword in extract_keywords_from_rows(evidence, limit * 2):
-        lowered = keyword.lower()
-        if ("keyword", lowered) in seen_keys:
-            continue
-        topic_rows = rows_with_terms(evidence, [keyword])
-        if len(topic_rows) >= 3:
-            groups.append((keyword, topic_rows))
-            seen_keys.add(("keyword", lowered))
-        if len(groups) >= limit:
-            break
-    return groups[:limit]
-
-
-def conflict_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[List[str]]:
-    rows = [["Context", "Positive-direction evidence", "Negative-direction evidence", "Synthesis / Caveat"]]
-    for context_label, context_rows in conflict_context_groups(evidence):
-        positive_rows = rows_with_terms(context_rows, POSITIVE_DIRECTION_TERMS)
-        negative_rows = rows_with_terms(context_rows, NEGATIVE_DIRECTION_TERMS)
-        if not positive_rows or not negative_rows:
-            continue
-        positive_cite = pmid_citation(collect_pmids(positive_rows, 4))
-        negative_cite = pmid_citation(collect_pmids(negative_rows, 4))
-        caveat = zh(
-            is_zh,
-            "RiceMind 检测到同一语境下存在正向和负向方向词；这通常提示光周期、发育阶段、遗传背景、胁迫强度或证据等级差异，而不是简单的互相否定。",
-            "RiceMind detected both positive and negative directional terms in the same context; this usually indicates photoperiod, developmental stage, genetic background, stress intensity or evidence-tier dependence rather than simple mutual contradiction.",
-        )
-        rows.append([
-            context_label,
-            f"n={len(positive_rows)} {positive_cite}",
-            f"n={len(negative_rows)} {negative_cite}",
-            caveat,
-        ])
-    return rows if len(rows) > 1 else []
 
 
 def bibliometric_rows(evidence: List[Dict[str, str]]) -> Tuple[List[List[str]], List[List[str]]]:
@@ -1857,20 +1762,7 @@ def build_docx(
     else:
         doc.add_paragraph(zh(is_zh, "输入证据缺少年份信息，无法生成热点阶段分析。", "No usable publication years were available for hotspot phase analysis."))
 
-    doc.add_heading(zh(is_zh, "8. 不一致或条件依赖的机制线索", "8. Conflicting or Context-Dependent Mechanistic Signals"), 1)
-    detected_conflicts = conflict_rows(evidence, is_zh)
-    if detected_conflicts:
-        add_table(doc, detected_conflicts)
-    else:
-        doc.add_paragraph(
-            zh(
-                is_zh,
-                "未在当前 RiceMind 句子证据中检测到足够强的正负方向词共存模式。没有检测到冲突并不代表文献完全一致，只表示本次规则化扫描未发现可稳定报告的条件依赖线索。",
-                "No sufficiently strong positive/negative directional co-occurrence pattern was detected in the current RiceMind sentence evidence. Absence of detected conflict does not prove full literature agreement; it only means this rule-based scan did not find a stable reportable context-dependence signal.",
-            )
-        )
-
-    doc.add_heading(zh(is_zh, "9. 二级文献计量与 PMID 可追溯性", "9. Secondary Bibliometrics and PMID Traceability"), 1)
+    doc.add_heading(zh(is_zh, "8. 二级文献计量与 PMID 可追溯性", "8. Secondary Bibliometrics and PMID Traceability"), 1)
     add_picture_if_exists(doc, fig_paths.get("years"), zh(is_zh, "图 6. 句子级证据的发表年份分布。", "Figure 6. Publication-year distribution of sentence-level evidence."))
     if not fig_paths.get("years"):
         doc.add_paragraph(zh(is_zh, "输入证据缺少可用发表年份，未生成年度趋势图。", "No usable publication years were available for a trend chart."))
@@ -1897,7 +1789,7 @@ def build_docx(
         )
     )
 
-    doc.add_heading(zh(is_zh, "10. 品种共现与组学序列信息", "10. Variety Co-Occurrence and Omics Sequence Information"), 1)
+    doc.add_heading(zh(is_zh, "9. 品种共现与组学序列信息", "9. Variety Co-Occurrence and Omics Sequence Information"), 1)
     if varieties:
         variety_rows = [["Variety"]]
         for row in varieties:
@@ -1918,7 +1810,7 @@ def build_docx(
     elif bundle.get("omics_sequence_error"):
         doc.add_paragraph(zh(is_zh, f"组学序列接口未返回可用结果：{bundle['omics_sequence_error']}", f"Omics sequence endpoint did not return usable data: {bundle['omics_sequence_error']}"))
 
-    doc.add_heading(zh(is_zh, "11. 证据边界与解释限制", "11. Evidence Boundaries and Interpretation Limits"), 1)
+    doc.add_heading(zh(is_zh, "10. 证据边界与解释限制", "10. Evidence Boundaries and Interpretation Limits"), 1)
     doc.add_paragraph(
         zh(
             is_zh,

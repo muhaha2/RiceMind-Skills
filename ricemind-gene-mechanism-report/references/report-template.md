@@ -171,21 +171,7 @@ Required content:
 - Explain hotspot shifts as changes in literature attention, not necessarily changes in biological importance.
 - Use only terms and years extracted from RiceMind sentence evidence.
 
-## 8. 不一致或条件依赖的分子机理
-
-Data source: RiceMind sentence evidence.
-
-Required content:
-
-- Detect positive/negative directional wording in the same mechanism or phenotype context when available.
-- Report the context, positive-direction evidence count/PMIDs, negative-direction evidence count/PMIDs and a cautious synthesis.
-- Frame detected conflicts as potential context dependence unless RiceMind curated/experimental evidence supports a stronger conclusion.
-- Consider photoperiod, developmental stage, genetic background, stress intensity, tissue, allele type and evidence tier as possible explanations.
-- If no stable conflict pattern is detected, say so explicitly.
-
-Do not manufacture controversies from general knowledge or from the user's example.
-
-## 9. 二级文献计量与 PMID 可追溯性
+## 8. 二级文献计量与 PMID 可追溯性
 
 Data source: sentence evidence and article metadata.
 
@@ -202,7 +188,7 @@ Required figure:
 
 - Publication-year bar chart.
 
-## 10. 品种共现与组学序列信息
+## 9. 品种共现与组学序列信息
 
 Data sources:
 
@@ -218,7 +204,7 @@ Required content:
 
 Do not over-interpret variety co-occurrence as a direct functional mechanism.
 
-## 11. 证据边界与解释限制
+## 10. 证据边界与解释限制
 
 Required content:
 

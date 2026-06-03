@@ -1,13 +1,13 @@
 ---
 name: ricemind-gene-mechanism-report
-description: Create multi-dimensional, evidence-grounded DOCX reports for rice gene mechanisms from RiceMind APIs, MCP tool payloads, or exported RiceMind JSON. Use when a user asks for a gene-centered RiceMind report, gene-trait association overview, mechanism synthesis, PMID-backed evidence table, confidence-tier analysis, ontology distribution, temporal hotspot evolution, conflict/context-dependence detection, bibliometrics, literature trend chart, or task-oriented workflow based on RiceMind GTA evidence.
+description: Create multi-dimensional, evidence-grounded DOCX reports for rice gene mechanisms from RiceMind APIs, MCP tool payloads, or exported RiceMind JSON. Use when a user asks for a gene-centered RiceMind report, gene-trait association overview, mechanism synthesis, PMID-backed evidence table, confidence-tier analysis, ontology distribution, temporal hotspot evolution, bibliometrics, literature trend chart, or task-oriented workflow based on RiceMind GTA evidence.
 ---
 
 # RiceMind Gene Mechanism Report
 
 ## Overview
 
-Generate a gene-centered multi-dimensional evidence report from RiceMind evidence only. The output must be a fixed-template `.docx` with traceable gene profile data, all retrievable gene-trait associations, confidence/evidence-code summaries, ontology and sentence provenance, PMID-backed synthesized mechanism prose, temporal hotspot evolution, condition-dependent/conflict signals, bibliometrics, and figures where the RiceMind payload supports them.
+Generate a gene-centered multi-dimensional evidence report from RiceMind evidence only. The output must be a fixed-template `.docx` with traceable gene profile data, all retrievable gene-trait associations, confidence/evidence-code summaries, ontology and sentence provenance, PMID-backed synthesized mechanism prose, temporal hotspot evolution, bibliometrics, and figures where the RiceMind payload supports them.
 
 Do not use the LLM as an independent source of rice biology. Treat RiceMind API/MCP JSON as the canonical evidence substrate and preserve provenance fields in the report.
 
@@ -47,7 +47,6 @@ Before generating any report, read `references/report-template.md` and `referenc
    - Use exploratory wording for Tier 3 or supplementary/uncatalogued gene evidence.
    - Cite each mechanism statement with bracket-style PMID markers, for example `[12345678, 23456789]`.
    - Never cite a PMID unless it appears in the RiceMind payload for that claim.
-   - Detect context-dependent or conflicting signals only from RiceMind sentence text. Report them as "potential condition dependence" unless curated/experimental evidence supports a stronger claim.
    - Build temporal hotspot phases from RiceMind `year` metadata and sentence keywords; do not infer historical phases from outside knowledge.
    - Report journal/PMID bibliometrics only from returned metadata. Do not invent geographic or institutional hotspots when affiliation metadata is absent.
 
@@ -92,16 +91,13 @@ Use the fixed template in `references/report-template.md`. The required top-leve
 7. Temporal Analysis and Hotspot Evolution
    - Use RiceMind year metadata to split evidence into phases and report phase-specific keywords, trait contexts and PMID counts.
 
-8. Conflicting or Context-Dependent Mechanistic Signals
-   - Detect positive/negative directional wording in the same trait/mechanism context and report it as possible photoperiod, developmental-stage, genetic-background, stress-intensity or evidence-tier dependence.
-
-9. Secondary Bibliometrics and PMID Traceability
+8. Secondary Bibliometrics and PMID Traceability
    - Publication-year distribution, unique PMID counts, repeated-support PMID clusters, top journals when journal metadata exists, and no geographic/institutional claims unless RiceMind provides affiliation metadata.
 
-10. Variety Co-Occurrence and Omics Sequence Information
+9. Variety Co-Occurrence and Omics Sequence Information
    - Variety co-occurrence and direct clickable RiceMind `gene-omics-sequence` API URL(s). Do not paste a large omics sequence returned-summary table into the DOCX body; leave full sequence payloads in the JSON sidecar.
 
-11. Evidence Boundaries and Interpretation Limits
+10. Evidence Boundaries and Interpretation Limits
    - Explicitly distinguish curated/experimental evidence, repeated NLP co-occurrence, and low-support exploratory associations.
    - Note that sentence co-occurrence alone does not establish causality.
 
