@@ -1840,10 +1840,15 @@ def main() -> int:
     parser.add_argument("--max-evidence-rows", type=int, default=0, help="Retained for backward compatibility; full evidence is written to CSV, not the DOCX body")
     parser.add_argument("--max-trait-rows", type=int, default=REPORT_TRAIT_ROWS, help=f"Max trait rows in DOCX summary table; default {REPORT_TRAIT_ROWS}")
     parser.add_argument("--mechanism-md", type=Path, help="Optional personalized Section 6 mechanism synthesis Markdown generated from the current gene's RiceMind evidence")
+    parser.add_argument("--sidecars-only", action="store_true", help="Write payload/CSV/mechanism bundle/figures only; skip DOCX generation")
+    parser.add_argument("--docx-only", action="store_true", help="Write only the DOCX and figures; do not rewrite payload/CSV/mechanism sidecars")
+    parser.add_argument("--write-brief", action="store_true", help="Also write the optional mechanism synthesis brief Markdown for debugging or manual prompting")
     args = parser.parse_args()
 
     if args.no_api and not args.input_json:
         parser.error("Provide --input-json when using --no-api")
+    if args.sidecars_only and args.docx_only:
+        parser.error("Use at most one of --sidecars-only and --docx-only")
 
     bundle: Dict[str, Any] = {"gene": args.gene}
     if args.input_json:
@@ -1874,22 +1879,32 @@ def main() -> int:
     mechanism_bundle_json = out_path.with_name(f"{out_path.stem}_mechanism_evidence_bundle.json")
     mechanism_brief_md = out_path.with_name(f"{out_path.stem}_mechanism_synthesis_brief.md")
 
-    write_csv(
-        traits_csv,
-        traits,
-        ["gene", "rap_id", "trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "support", "year"],
-    )
-    write_csv(
-        evidence_csv,
-        evidence,
-        ["trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "pmid", "sentence_id", "year", "title", "journal", "doi", "sentence"],
-    )
-    write_csv(varieties_csv, varieties, ["variety"])
-    write_json(payload_json, bundle)
+    wrote_sidecars: List[Path] = []
+    if not args.docx_only:
+        write_csv(
+            traits_csv,
+            traits,
+            ["gene", "rap_id", "trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "support", "year"],
+        )
+        wrote_sidecars.append(traits_csv)
+        write_csv(
+            evidence_csv,
+            evidence,
+            ["trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "pmid", "sentence_id", "year", "title", "journal", "doi", "sentence"],
+        )
+        wrote_sidecars.append(evidence_csv)
+        if varieties:
+            write_csv(varieties_csv, varieties, ["variety"])
+            wrote_sidecars.append(varieties_csv)
+        write_json(payload_json, bundle)
+        wrote_sidecars.append(payload_json)
 
-    mechanism_bundle = build_mechanism_evidence_bundle(args.gene, traits, evidence, varieties)
-    write_json(mechanism_bundle_json, mechanism_bundle)
-    write_text(mechanism_brief_md, build_mechanism_prompt_markdown(args.gene, mechanism_bundle, evidence_csv.name, args.language))
+        mechanism_bundle = build_mechanism_evidence_bundle(args.gene, traits, evidence, varieties)
+        write_json(mechanism_bundle_json, mechanism_bundle)
+        wrote_sidecars.append(mechanism_bundle_json)
+        if args.write_brief:
+            write_text(mechanism_brief_md, build_mechanism_prompt_markdown(args.gene, mechanism_bundle, evidence_csv.name, args.language))
+            wrote_sidecars.append(mechanism_brief_md)
 
     fig_paths = {
         "confidence": plot_counter(Counter(row["confidence"] for row in traits if row["confidence"]), "Confidence-tier distribution", fig_dir / "confidence_distribution.png"),
@@ -1900,22 +1915,15 @@ def main() -> int:
         "years": plot_years((row["year"] for row in evidence), fig_dir / "publication_year_trend.png"),
     }
 
-    try:
-        build_docx(args.gene, bundle, traits, evidence, varieties, out_path, fig_paths, args.language, args.max_evidence_rows, args.max_trait_rows, args.mechanism_md)
-    except RuntimeError as exc:
-        print(str(exc), file=sys.stderr)
-        return 2
-
-    print(f"Wrote {out_path}")
-    print(f"Wrote {payload_json}")
-    print(f"Wrote {mechanism_bundle_json}")
-    print(f"Wrote {mechanism_brief_md}")
-    if traits:
-        print(f"Wrote {traits_csv}")
-    if evidence:
-        print(f"Wrote {evidence_csv}")
-    if varieties:
-        print(f"Wrote {varieties_csv}")
+    if not args.sidecars_only:
+        try:
+            build_docx(args.gene, bundle, traits, evidence, varieties, out_path, fig_paths, args.language, args.max_evidence_rows, args.max_trait_rows, args.mechanism_md)
+        except RuntimeError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        print(f"Wrote {out_path}")
+    for path in wrote_sidecars:
+        print(f"Wrote {path}")
     return 0
 
 

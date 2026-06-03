@@ -216,13 +216,16 @@ Required content:
 
 ## Sidecar Files
 
-Every automated report run should save:
+Every finalized report should keep exactly one canonical file set:
 
 - `{gene}_RiceMind_gene_mechanism_report.docx`
 - `{gene}_RiceMind_gene_mechanism_report_payload.json`
 - `{gene}_RiceMind_gene_mechanism_report_normalized_traits.csv`
 - `{gene}_RiceMind_gene_mechanism_report_normalized_evidence.csv`
-- `{gene}_RiceMind_gene_mechanism_report_normalized_varieties.csv` when available
+- `{gene}_RiceMind_gene_mechanism_report_normalized_varieties.csv` only when RiceMind returns at least one variety record
+- `{gene}_RiceMind_gene_mechanism_report_mechanism_evidence_bundle.json`
 - figure PNGs in `{report_stem}_figures/`
+
+Do not keep duplicate `_final`, `_updated`, `_no_conflict`, or draft-stem sidecar files unless the user explicitly asks for versioned outputs. Temporary Section 6 Markdown and optional `*_mechanism_synthesis_brief.md` files are drafting artifacts; delete them after the final DOCX is generated unless the user asks to preserve them.
 
 The DOCX should not reproduce full normalized trait or evidence tables. It should summarize them and point users to the sidecar files.

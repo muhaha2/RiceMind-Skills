@@ -52,9 +52,12 @@ Before generating any report, read `references/report-template.md` and `referenc
 
 5. Generate figures and DOCX.
    - Use `scripts/build_gene_mechanism_report.py` when REST endpoints can be called or a RiceMind JSON bundle is available.
-   - First run the script to fetch/normalize the full data and create sidecars, including `*_mechanism_evidence_bundle.json` and `*_mechanism_synthesis_brief.md`.
-   - Read the mechanism evidence bundle, the brief, and the full `*_normalized_evidence.csv`; write a gene-specific Section 6 mechanism synthesis Markdown from the actual sentence evidence.
-   - Re-run the script with `--mechanism-md path/to/section6.md` to insert that personalized synthesis into the DOCX. Without `--mechanism-md`, the script only inserts a neutral data-driven evidence-topic summary and must not invent a mechanism review.
+   - Use one canonical report stem for every gene, for example `{gene}_RiceMind_gene_mechanism_report`. Do not create `_final`, `_updated`, `_no_conflict`, or other duplicate final stems unless the user explicitly asks for multiple versions.
+   - First run the script with `--sidecars-only` to fetch/normalize the full data and create exactly one set of data sidecars, including `*_payload.json`, `*_normalized_traits.csv`, `*_normalized_evidence.csv`, optional `*_normalized_varieties.csv`, `*_mechanism_evidence_bundle.json`, and one figure directory.
+   - Read the mechanism evidence bundle and the full `*_normalized_evidence.csv`; write a gene-specific Section 6 mechanism synthesis Markdown from the actual sentence evidence. If `--write-brief` was used for debugging, the brief may help orient this step but is not a final artifact.
+   - Keep Section 6 Markdown as a temporary working file, preferably outside the final report folder or in a scratch folder. Re-run the script with `--docx-only --mechanism-md path/to/section6.md --out {canonical}.docx` to insert the personalized synthesis without rewriting duplicate sidecars.
+   - Delete temporary Section 6 Markdown and optional brief files after successful DOCX generation unless the user explicitly asks to keep drafting artifacts. Without `--mechanism-md`, the script only inserts a neutral data-driven evidence-topic summary and must not invent a mechanism review.
+   - Use `--write-brief` only for debugging or manual prompting. Do not keep `*_mechanism_synthesis_brief.md` as a final deliverable by default.
    - Include at minimum: confidence-tier distribution, ontology distribution, top traits by support, evidence-code distribution, source distribution, and publication-year trend if years are available.
    - Keep figures evidence-descriptive, not causal unless supported by curated or experimental evidence.
    - Format all Chinese text as SimSun/宋体 and all Latin text as Times New Roman. Use the size rules in `references/report-template.md`.
@@ -127,7 +130,8 @@ python scripts/build_gene_mechanism_report.py --gene XA21 --out XA21_RiceMind_re
 For a final report with a personalized mechanism section, use the generated evidence bundle and full evidence CSV to write Section 6 Markdown, then insert it:
 
 ```bash
-python scripts/build_gene_mechanism_report.py --gene XA21 --input-json XA21_RiceMind_report_payload.json --no-api --mechanism-md XA21_section6_mechanism.md --out XA21_RiceMind_report_final.docx
+python scripts/build_gene_mechanism_report.py --gene XA21 --out XA21_RiceMind_report.docx --page-limit 500 --sidecars-only
+python scripts/build_gene_mechanism_report.py --gene XA21 --input-json XA21_RiceMind_report_payload.json --no-api --mechanism-md scratch/XA21_section6_mechanism.md --out XA21_RiceMind_report.docx --docx-only
 ```
 
-The script defaults to `http://lit-evi.hzau.edu.cn/ricemind-api/`, fetches all pages for the core endpoints, writes the DOCX, saves the complete payload JSON, writes normalized CSV sidecars, exports `*_mechanism_evidence_bundle.json` and `*_mechanism_synthesis_brief.md`, and creates figure PNGs. If the live REST route names change, provide an endpoint map JSON. See `references/ricemind-api.md`.
+The script defaults to `http://lit-evi.hzau.edu.cn/ricemind-api/`, fetches all pages for the core endpoints, writes the DOCX, saves the complete payload JSON, writes normalized CSV sidecars, exports `*_mechanism_evidence_bundle.json`, and creates figure PNGs. It writes `*_mechanism_synthesis_brief.md` only with `--write-brief`. If the live REST route names change, provide an endpoint map JSON. See `references/ricemind-api.md`.
