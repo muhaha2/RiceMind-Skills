@@ -39,7 +39,8 @@ Before generating any report, read `references/report-template.md` and `referenc
    - Separate RiceMind source evidence from interpretation.
    - Read and integrate the concrete content of the full retrieved sentence evidence; do not write a section that only restates trait associations or support counts.
    - Treat trait names as indexing terms only. The mechanism prose must be grounded primarily in `normalized_evidence.csv` sentence text, not in the trait table.
-   - Extract sentence-derived mechanism chains such as molecular identity, allele/mutation/expression change, pathway perturbation, hormone signaling, phenotype endpoints, breeding-use context, stress-growth balance and developmental context.
+   - Derive mechanism topics from the current gene's RiceMind evidence. Do not reuse fixed biological topic inventories such as BPH resistance, sd1/GA biology, heading date, drought, or any other gene-specific template unless the current API payload explicitly supports that theme.
+   - Extract sentence-derived mechanism chains such as molecular identity, allele/mutation/expression change, pathway perturbation, signaling context, phenotype endpoints, breeding-use context, stress/development context, or other chains that actually appear in the current sentence evidence.
    - Convert those RiceMind sentence-derived chains into review-style prose that explains the logic linking the gene, mechanism, phenotype and PMIDs. Avoid paragraphs that only say "sentences co-report gene X with trait Y".
    - Use strong wording only for Tier 1 curated/experimental evidence.
    - Use discovery-candidate wording for Tier 2 NLP-supported associations.
@@ -52,6 +53,9 @@ Before generating any report, read `references/report-template.md` and `referenc
 
 5. Generate figures and DOCX.
    - Use `scripts/build_gene_mechanism_report.py` when REST endpoints can be called or a RiceMind JSON bundle is available.
+   - First run the script to fetch/normalize the full data and create sidecars, including `*_mechanism_evidence_bundle.json` and `*_mechanism_synthesis_brief.md`.
+   - Read the mechanism evidence bundle, the brief, and the full `*_normalized_evidence.csv`; write a gene-specific Section 6 mechanism synthesis Markdown from the actual sentence evidence.
+   - Re-run the script with `--mechanism-md path/to/section6.md` to insert that personalized synthesis into the DOCX. Without `--mechanism-md`, the script only inserts a neutral data-driven evidence-topic summary and must not invent a mechanism review.
    - Include at minimum: confidence-tier distribution, ontology distribution, top traits by support, evidence-code distribution, source distribution, and publication-year trend if years are available.
    - Keep figures evidence-descriptive, not causal unless supported by curated or experimental evidence.
    - Format all Chinese text as SimSun/宋体 and all Latin text as Times New Roman. Use the size rules in `references/report-template.md`.
@@ -79,8 +83,8 @@ Use the fixed template in `references/report-template.md`. The required top-leve
 
 6. RiceMind Sentence-Evidence-Driven Mechanism Synthesis
    - Organize by mechanism topic rather than by trait list or confidence-tier list.
-   - Write integrated review-style mechanism paragraphs based on the full retrieved sentence evidence, extracting pathway, mutation/expression, hormone signaling, phenotype, breeding and stress/development chains from the sentence text.
-   - For BPH/brown planthopper resistance entries, organize evidence around resistance loci/QTLs, host-feeding phenotypes, defense signaling, candidate resistance genes and breeding/introgression workflows. Do not force all BPH sentences into a single cloned-gene mechanism.
+   - Write integrated review-style mechanism paragraphs based on the full retrieved sentence evidence, extracting only the pathway, mutation/expression, signaling, phenotype, breeding, stress/development or other chains visible in the current gene's RiceMind text.
+   - Choose section headings from the current gene's evidence clusters. Do not hard-code traits, mechanisms, pests, hormones, pathways, or gene families into the template.
    - Explain the hidden logic among gene, molecular mechanism, trait and phenotype that is visible in RiceMind Data, while avoiding unsupported external biology.
    - Mention trait labels only when they help orient the reader; do not let trait labels substitute for sentence-evidence synthesis.
    - Use PMID bracket citations, for example `[12345678, 23456789]`.
@@ -108,7 +112,7 @@ Use the fixed template in `references/report-template.md`. The required top-leve
 - `references/ricemind-api-guide.md`: extracted Markdown from the user-provided API documentation.
 - `references/ricemind-api-guide.docx`: original user-provided API documentation.
 - `references/evidence-and-reporting.md`: confidence-tier rules, reporting language, and DOCX section requirements.
-- `scripts/build_gene_mechanism_report.py`: normalize RiceMind payloads, draw figures, and create a DOCX report.
+- `scripts/build_gene_mechanism_report.py`: normalize RiceMind payloads, draw figures, export mechanism evidence bundles, insert optional personalized mechanism Markdown, and create a DOCX report.
 
 ## Script Usage
 
@@ -124,4 +128,10 @@ Use REST endpoints when available:
 python scripts/build_gene_mechanism_report.py --gene XA21 --out XA21_RiceMind_report.docx --page-limit 500
 ```
 
-The script defaults to `http://lit-evi.hzau.edu.cn/ricemind-api/`, fetches all pages for the core endpoints, writes the DOCX, saves the complete payload JSON, writes normalized CSV sidecars and creates figure PNGs. If the live REST route names change, provide an endpoint map JSON. See `references/ricemind-api.md`.
+For a final report with a personalized mechanism section, use the generated evidence bundle and full evidence CSV to write Section 6 Markdown, then insert it:
+
+```bash
+python scripts/build_gene_mechanism_report.py --gene XA21 --input-json XA21_RiceMind_report_payload.json --no-api --mechanism-md XA21_section6_mechanism.md --out XA21_RiceMind_report_final.docx
+```
+
+The script defaults to `http://lit-evi.hzau.edu.cn/ricemind-api/`, fetches all pages for the core endpoints, writes the DOCX, saves the complete payload JSON, writes normalized CSV sidecars, exports `*_mechanism_evidence_bundle.json` and `*_mechanism_synthesis_brief.md`, and creates figure PNGs. If the live REST route names change, provide an endpoint map JSON. See `references/ricemind-api.md`.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a fixed-template RiceMind gene mechanism DOCX report from full API data."""
+"""Build a fixed-template RiceMind gene mechanism DOCX report from full RiceMind API data."""
 
 from __future__ import annotations
 
@@ -199,6 +199,11 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=2)
+
+
+def write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
 
 
 def render_params(params: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, str]:
@@ -1115,61 +1120,66 @@ def sequence_api_url_rows(bundle: Dict[str, Any], profile: Dict[str, Any], gene:
     return rows
 
 
-HOTSPOT_TERMS = [
-    "heading date",
-    "heading",
-    "flowering",
-    "photoperiod",
-    "long-day",
-    "short-day",
-    "circadian",
-    "Ehd1",
-    "Hd3a",
-    "RFT1",
-    "grain number",
-    "grain yield",
-    "yield",
-    "plant height",
-    "panicle",
-    "tiller",
-    "QTL",
-    "allele",
-    "natural variation",
-    "domestication",
-    "adaptation",
-    "drought",
-    "salt",
-    "nitrogen",
-    "ABA",
-    "stress",
-    "transcriptome",
-    "scRNA",
-    "single-cell",
-    "brown planthopper",
-    "BPH",
-    "resistance",
-    "feeding",
-    "defense",
-    "introgression",
-    "pyramiding",
-    "marker-assisted",
-    "GA",
-    "gibberellin",
-    "SLR1",
-    "DELLA",
-    "lodging",
-    "semi-dwarf",
-]
-
-CONFLICT_CONTEXTS = [
-    ("Heading/flowering time", "抽穗期开花", ["heading", "flowering", "floral", "photoperiod", "long-day", "short-day"]),
-    ("Yield and grain traits", "产量和穗粒性状", ["yield", "grain", "panicle", "tiller", "spikelet", "harvest index"]),
-    ("Plant height and growth", "株高和生长", ["plant height", "height", "growth", "dwarf", "semi-dwarf", "elongation"]),
-    ("Drought and water deficit", "干旱和水分亏缺", ["drought", "water deficit", "wilting", "dehydration"]),
-    ("Salt/osmotic stress", "盐和渗透胁迫", ["salt", "salinity", "nacl", "osmotic"]),
-    ("Pest/pathogen resistance", "虫害病害抗性", ["brown planthopper", "bph", "pest", "insect", "pathogen", "disease", "resistance"]),
-    ("Expression/regulatory effect", "表达和调控方向", ["expression", "transcription", "up-regulated", "down-regulated", "repress", "activate"]),
-]
+GENERIC_KEYWORD_STOPWORDS = {
+    "about",
+    "above",
+    "across",
+    "after",
+    "against",
+    "also",
+    "among",
+    "analysis",
+    "article",
+    "because",
+    "between",
+    "both",
+    "could",
+    "database",
+    "detected",
+    "different",
+    "during",
+    "effect",
+    "evidence",
+    "family",
+    "gene",
+    "genes",
+    "genetic",
+    "genome",
+    "identified",
+    "including",
+    "indicated",
+    "indicates",
+    "lines",
+    "major",
+    "mapped",
+    "method",
+    "more",
+    "novel",
+    "only",
+    "other",
+    "plant",
+    "plants",
+    "reported",
+    "results",
+    "rice",
+    "sativa",
+    "showed",
+    "shows",
+    "study",
+    "than",
+    "that",
+    "their",
+    "these",
+    "this",
+    "those",
+    "through",
+    "trait",
+    "traits",
+    "under",
+    "using",
+    "were",
+    "with",
+}
 
 POSITIVE_DIRECTION_TERMS = [
     "promote",
@@ -1214,6 +1224,8 @@ NEGATIVE_DIRECTION_TERMS = [
     "less",
 ]
 
+TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]{2,}")
+
 
 def evidence_summary_rows(traits: List[Dict[str, str]], evidence: List[Dict[str, str]]) -> List[List[str]]:
     return [
@@ -1231,6 +1243,42 @@ def year_span_text(rows: List[Dict[str, str]]) -> str:
     if not years:
         return "unavailable"
     return f"{years[0]}-{years[-1]}"
+
+
+def normalize_keyword(token: str) -> str:
+    token = token.strip(".,;:()[]{}'\"").replace("_", "-")
+    if token.isupper() and len(token) <= 12:
+        return token
+    return token.lower()
+
+
+def extract_keywords_from_text(text: str, limit: int = 12, exclude: Sequence[str] = ()) -> List[str]:
+    excluded = {normalize_keyword(item) for item in exclude if item}
+    counter: Counter = Counter()
+    for raw in TOKEN_RE.findall(text or ""):
+        token = normalize_keyword(raw)
+        if len(token) < 3:
+            continue
+        if token in GENERIC_KEYWORD_STOPWORDS or token in excluded:
+            continue
+        if token.isdigit():
+            continue
+        counter[token] += 1
+    return [term for term, _ in counter.most_common(limit)]
+
+
+def extract_keywords_from_rows(
+    rows: List[Dict[str, str]],
+    limit: int = 12,
+    fields: Sequence[str] = ("trait", "sentence", "title"),
+    exclude: Sequence[str] = (),
+) -> List[str]:
+    text = " ".join(row.get(field, "") for row in rows for field in fields)
+    return extract_keywords_from_text(text, limit=limit, exclude=exclude)
+
+
+def join_items(items: Sequence[str], is_zh: bool = False) -> str:
+    return ("、" if is_zh else ", ").join(item for item in items if item)
 
 
 def ontology_distribution_rows(traits: List[Dict[str, str]], evidence: List[Dict[str, str]]) -> List[List[str]]:
@@ -1297,19 +1345,19 @@ def temporal_hotspot_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[L
         phase_rows = [row for row in evidence if start <= parse_int(row.get("year", "")) <= end]
         if not phase_rows:
             continue
-        terms = observed_terms(phase_rows, HOTSPOT_TERMS, 8)
+        terms = extract_keywords_from_rows(phase_rows, 8)
         top_traits = [trait for trait, _ in Counter(row.get("trait", "") for row in phase_rows if row.get("trait", "")).most_common(5)]
         interpretation = zh(
             is_zh,
-            f"热点集中在 {join_cn(terms) if terms else '可追溯句证'}；相关 trait/语境包括 {join_cn(top_traits) if top_traits else '未明确'}。",
-            f"Hotspots center on {join_en(terms) if terms else 'traceable evidence'}; associated traits/contexts include {join_en(top_traits) if top_traits else 'unspecified'}.",
+            f"热点词由本阶段 RiceMind 句子文本自动抽取：{join_items(terms, True) if terms else '可追溯句证'}；相关 trait/语境包括 {join_items(top_traits, True) if top_traits else '未明确'}。",
+            f"Hotspot terms are extracted from phase-specific RiceMind sentence text: {join_items(terms) if terms else 'traceable evidence'}; associated traits/contexts include {join_items(top_traits) if top_traits else 'unspecified'}.",
         )
         rows.append([
             phase,
             f"{start}-{end}",
             str(len(phase_rows)),
             str(len({row.get("pmid", "") for row in phase_rows if row.get("pmid", "")})),
-            truncate(join_cn(terms) if is_zh else join_en(terms), 160),
+            truncate(join_items(terms, is_zh), 160),
             truncate(interpretation, 240),
         ])
     return rows
@@ -1320,12 +1368,33 @@ def rows_with_terms(rows: List[Dict[str, str]], terms: Sequence[str]) -> List[Di
     return [row for row in rows if any(term in f"{row.get('trait', '')} {row.get('sentence', '')}".lower() for term in lowered)]
 
 
+def conflict_context_groups(evidence: List[Dict[str, str]], limit: int = 12) -> List[Tuple[str, List[Dict[str, str]]]]:
+    groups: List[Tuple[str, List[Dict[str, str]]]] = []
+    seen_keys = set()
+
+    trait_counts = Counter(row.get("trait", "").strip() for row in evidence if row.get("trait", "").strip())
+    for trait, _ in trait_counts.most_common(limit):
+        topic_rows = [row for row in evidence if row.get("trait", "").strip() == trait]
+        if len(topic_rows) >= 3:
+            groups.append((trait, topic_rows))
+            seen_keys.add(("trait", trait.lower()))
+
+    for keyword in extract_keywords_from_rows(evidence, limit * 2):
+        lowered = keyword.lower()
+        if ("keyword", lowered) in seen_keys:
+            continue
+        topic_rows = rows_with_terms(evidence, [keyword])
+        if len(topic_rows) >= 3:
+            groups.append((keyword, topic_rows))
+            seen_keys.add(("keyword", lowered))
+        if len(groups) >= limit:
+            break
+    return groups[:limit]
+
+
 def conflict_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[List[str]]:
     rows = [["Context", "Positive-direction evidence", "Negative-direction evidence", "Synthesis / Caveat"]]
-    for context_en, context_cn, context_terms in CONFLICT_CONTEXTS:
-        context_rows = rows_with_terms(evidence, context_terms)
-        if len(context_rows) < 3:
-            continue
+    for context_label, context_rows in conflict_context_groups(evidence):
         positive_rows = rows_with_terms(context_rows, POSITIVE_DIRECTION_TERMS)
         negative_rows = rows_with_terms(context_rows, NEGATIVE_DIRECTION_TERMS)
         if not positive_rows or not negative_rows:
@@ -1338,7 +1407,7 @@ def conflict_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[List[str]
             "RiceMind detected both positive and negative directional terms in the same context; this usually indicates photoperiod, developmental stage, genetic background, stress intensity or evidence-tier dependence rather than simple mutual contradiction.",
         )
         rows.append([
-            context_cn if is_zh else context_en,
+            context_label,
             f"n={len(positive_rows)} {positive_cite}",
             f"n={len(negative_rows)} {negative_cite}",
             caveat,
@@ -1373,198 +1442,6 @@ def row_limit(rows: List[Dict[str, str]], max_rows: int) -> List[Dict[str, str]]
     return rows
 
 
-THEME_RULES = [
-    (
-        "Gibberellin and hormone metabolism",
-        "赤霉素和激素代谢",
-        ["gibberellin", " ga ", "ga20", "ga3", "hormone", "auxin", "cytokinin", "jasmonic", "abscisic", "salicylic", "brassinosteroid", "ethylene"],
-    ),
-    (
-        "Plant height, dwarfism and architecture",
-        "株高、矮化和株型建成",
-        ["plant height", "height", "dwarf", "semi-dwarf", "semidwarf", "culm", "internode", "elongation", "architecture", "stem"],
-    ),
-    (
-        "Yield and reproductive development",
-        "产量和生殖发育",
-        ["yield", "grain", "seed", "panicle", "flower", "heading", "tiller", "fertility", "reproductive", "spikelet"],
-    ),
-    (
-        "Stress response and resistance",
-        "逆境响应和抗性",
-        ["stress", "drought", "salt", "cold", "heat", "pathogen", "blast", "resistance", "disease", "immunity", "defense"],
-    ),
-    (
-        "Vegetative growth and physiology",
-        "营养生长和生理性状",
-        ["leaf", "root", "shoot", "chlorophyll", "photosynthesis", "green", "biomass", "seedling"],
-    ),
-    (
-        "Molecular function and gene regulation",
-        "分子功能和基因调控",
-        ["biosynthetic", "metabolic", "oxidase", "enzyme", "protein", "expression", "transcription", "regulation", "mutant", "mutation", "allele"],
-    ),
-]
-
-MECHANISM_TERMS = [
-    "gibberellin",
-    "GA20",
-    "GA",
-    "plant height",
-    "dwarf",
-    "semi-dwarf",
-    "biosynthetic",
-    "oxidase",
-    "mutation",
-    "mutant",
-    "expression",
-    "internode",
-    "culm",
-    "grain",
-    "yield",
-    "panicle",
-    "tiller",
-    "stress",
-    "resistance",
-    "photosynthesis",
-    "chlorophyll",
-    "enzyme",
-    "regulation",
-]
-
-MECHANISM_SIGNAL_RULES = [
-    {
-        "key": "ga_biosynthesis",
-        "zh": "GA/赤霉素生物合成",
-        "en": "GA/gibberellin biosynthesis",
-        "keywords": [
-            "gibberellin biosynthesis",
-            "gibberellin synthesis",
-            "ga biosynthesis",
-            "ga synthesis",
-            "ga20 oxidase",
-            "ga 20-oxidase",
-            "ga20ox",
-            "c20-oxidase",
-            "20-oxidase",
-            "bioactive ga",
-            "gibberellic acid",
-        ],
-    },
-    {
-        "key": "mutation_loss",
-        "zh": "功能缺失、突变或表达降低",
-        "en": "loss-of-function, mutation or reduced expression",
-        "keywords": [
-            "loss-of-function",
-            "loss of function",
-            "defective",
-            "deletion",
-            "mutation",
-            "mutant allele",
-            "mutant alleles",
-            "loss of expression",
-            "reduced expression",
-            "knockout",
-            "allelic",
-        ],
-    },
-    {
-        "key": "architecture_height",
-        "zh": "株高、半矮秆和节间/秆长建成",
-        "en": "plant height, semi-dwarfism and internode/culm architecture",
-        "keywords": [
-            "plant height",
-            "semi-dwarf",
-            "semidwarf",
-            "dwarf",
-            "culm length",
-            "culm",
-            "internode",
-            "elongation",
-            "reduced height",
-            "shorter",
-        ],
-    },
-    {
-        "key": "yield_lodging_breeding",
-        "zh": "产量、抗倒伏和育种利用",
-        "en": "yield, lodging resistance and breeding use",
-        "keywords": [
-            "yield",
-            "lodging",
-            "harvest index",
-            "fertilizer",
-            "green revolution",
-            "breeding",
-            "modern rice cultivars",
-            "elite rice",
-            "high-yielding",
-        ],
-    },
-    {
-        "key": "reproductive_growth",
-        "zh": "生殖发育和生长阶段",
-        "en": "reproductive development and growth stages",
-        "keywords": [
-            "heading",
-            "panicle",
-            "grain",
-            "seed",
-            "spikelet",
-            "flower",
-            "fertility",
-            "mesocotyl",
-            "seedling",
-        ],
-    },
-    {
-        "key": "stress_defense",
-        "zh": "逆境、抗病和防御响应",
-        "en": "stress, disease resistance and defense response",
-        "keywords": [
-            "stress",
-            "drought",
-            "salt",
-            "cold",
-            "heat",
-            "pathogen",
-            "blast",
-            "disease",
-            "resistance",
-            "immunity",
-            "defense",
-        ],
-    },
-    {
-        "key": "expression_regulation",
-        "zh": "表达调控和分子功能",
-        "en": "expression regulation and molecular function",
-        "keywords": [
-            "expression",
-            "transcription",
-            "regulation",
-            "encoded by",
-            "encoding",
-            "enzyme",
-            "protein",
-            "homolog",
-            "candidate gene",
-            "qtl",
-            "locus",
-        ],
-    },
-]
-
-
-def assign_theme(text: str) -> Tuple[str, str]:
-    padded = " " + text.lower() + " "
-    for en, cn, keywords in THEME_RULES:
-        if any(keyword in padded for keyword in keywords):
-            return en, cn
-    return "Other RiceMind trait associations", "其他 RiceMind 性状关联"
-
-
 def collect_pmids(rows: List[Dict[str, str]], limit: int = 8) -> List[str]:
     counts: Counter = Counter(row.get("pmid", "").strip() for row in rows if row.get("pmid", "").strip())
     if counts:
@@ -1585,18 +1462,8 @@ def pmid_citation(pmids: List[str]) -> str:
     return "[" + ", ".join(pmids) + "]"
 
 
-def top_terms(rows: List[Dict[str, str]], limit: int = 6) -> List[str]:
-    counter: Counter = Counter()
-    for row in rows:
-        haystack = f"{row.get('trait', '')} {row.get('sentence', '')}".lower()
-        for term in MECHANISM_TERMS:
-            if term.lower() in haystack:
-                counter[term] += 1
-    return [term for term, _ in counter.most_common(limit)]
-
-
 def top_traits_for_rows(rows: List[Dict[str, str]], traits: List[Dict[str, str]], limit: int = 6) -> List[str]:
-    support = {row["trait"]: parse_int(row.get("support")) for row in traits}
+    support = {row.get("trait", ""): parse_int(row.get("support")) for row in traits}
     counter: Counter = Counter()
     for row in rows:
         trait = row.get("trait", "").strip()
@@ -1605,765 +1472,236 @@ def top_traits_for_rows(rows: List[Dict[str, str]], traits: List[Dict[str, str]]
     return [trait for trait, _ in counter.most_common(limit)]
 
 
-def signal_matches(row: Dict[str, str], keywords: Sequence[str]) -> bool:
-    haystack = f"{row.get('trait', '')} {row.get('sentence', '')}".lower()
-    return any(keyword in haystack for keyword in keywords)
-
-
-def summarize_signal_rows(rows: List[Dict[str, str]], limit: int = 5) -> List[Tuple[Dict[str, Any], List[Dict[str, str]]]]:
-    matched: List[Tuple[Dict[str, Any], List[Dict[str, str]]]] = []
-    for rule in MECHANISM_SIGNAL_RULES:
-        signal_rows = [row for row in rows if signal_matches(row, rule["keywords"])]
-        if signal_rows:
-            matched.append((rule, signal_rows))
-    matched.sort(key=lambda item: len(item[1]), reverse=True)
-    return matched[:limit]
-
-
-def compact_counter_text(rows: List[Dict[str, str]], field: str, limit: int = 3) -> str:
-    counts: Counter = Counter()
-    for row in rows:
-        for token in re.split(r"[;,|]\s*", row.get(field, "")):
-            token = token.strip()
-            if token:
-                counts[token] += 1
-    return ", ".join(f"{key}={value}" for key, value in counts.most_common(limit))
-
-
-def signal_clause(gene: str, rule: Dict[str, Any], rows: List[Dict[str, str]], is_zh: bool) -> str:
-    citation = pmid_citation(collect_pmids(rows, 6))
-    if is_zh:
-        clauses = {
-            "ga_biosynthesis": (
-                f"句子内容反复把 {gene} 放在 GA20 oxidase/C20-oxidase、赤霉素生物合成和活性 GA 水平调控的语境中，"
-                f"这使该主题下的证据核心从一般 trait 共现具体化为 GA 合成通路及其后期氧化步骤 {citation}。"
-            ),
-            "mutation_loss": (
-                f"同一组证据还把 deletion、defective gene、loss-of-function、loss of expression 或等位突变等表述与 {gene} 连接起来，"
-                f"提示 RiceMind 文本证据中的机制线索集中在功能缺失或表达降低造成的通路扰动 {citation}。"
-            ),
-            "architecture_height": (
-                f"在表型端，句子证据将上述分子变化与 semi-dwarf/dwarf、plant height、culm length、internode 或 elongation 等表型词汇串联，"
-                f"说明 {gene} 相关证据主要通过株高、半矮秆和节间/秆长建成体现出来 {citation}。"
-            ),
-            "yield_lodging_breeding": (
-                f"育种应用相关句子进一步把 {gene} 的半矮化语境与 lodging resistance、fertilizer response、harvest index、yield 或 Green Revolution 品种利用相连，"
-                f"因此该部分更适合表述为 RiceMind 文献证据支持的育种价值链条，而不是单一分子事件 {citation}。"
-            ),
-            "reproductive_growth": (
-                f"生长发育相关句子把 {gene} 与 heading、panicle、grain、seed、spikelet、flower、mesocotyl 或 seedling 等发育阶段和器官性状共同报告，"
-                f"为其在生殖发育或生长阶段中的表型延伸提供 RiceMind 句子级线索 {citation}。"
-            ),
-            "stress_defense": (
-                f"逆境和抗性相关句子把 {gene} 与 stress、disease、resistance、immunity 或 defense 等词汇共同报告，"
-                f"这些证据目前应被解释为 RiceMind 文献中的候选关联或探索性生物学语境 {citation}。"
-            ),
-            "expression_regulation": (
-                f"表达和分子功能相关句子包含 encoding、enzyme、protein、expression、candidate gene、QTL 或 locus 等线索，"
-                f"可用于把 trait 关联追溯到 RiceMind 文本中出现的分子身份、表达或候选位点描述 {citation}。"
-            ),
-        }
-        return clauses.get(rule["key"], f"句子证据反复出现 {rule['zh']} 相关线索 {citation}。")
-
-    clauses = {
-        "ga_biosynthesis": (
-            f"Sentence evidence repeatedly places {gene} in the context of GA20 oxidase/C20-oxidase, gibberellin biosynthesis and bioactive GA control, "
-            f"turning the association into a pathway-level RiceMind signal for late GA biosynthetic oxidation steps {citation}."
-        ),
-        "mutation_loss": (
-            f"The same evidence links {gene} with deletion, defective gene, loss-of-function, loss of expression or allelic mutation language, "
-            f"indicating that the RiceMind textual mechanism centers on pathway disturbance caused by reduced function or expression {citation}."
-        ),
-        "architecture_height": (
-            f"At the phenotype level, the evidence connects those molecular descriptions with semi-dwarf/dwarf, plant height, culm length, internode and elongation terms, "
-            f"framing {gene} through plant-height and architecture outcomes {citation}."
-        ),
-        "yield_lodging_breeding": (
-            f"Breeding-oriented sentences connect {gene}'s semi-dwarf context with lodging resistance, fertilizer response, harvest index, yield or Green Revolution cultivar use, "
-            f"so this section is best framed as a RiceMind-supported breeding-value chain rather than a single molecular event {citation}."
-        ),
-        "reproductive_growth": (
-            f"Developmental sentences co-report {gene} with heading, panicle, grain, seed, spikelet, flower, mesocotyl or seedling traits, "
-            f"providing RiceMind sentence-level evidence for developmental extensions of the main mechanism {citation}."
-        ),
-        "stress_defense": (
-            f"Stress and resistance sentences co-report {gene} with stress, disease, resistance, immunity or defense terms; these records should be treated as candidate or exploratory biological contexts {citation}."
-        ),
-        "expression_regulation": (
-            f"Expression and molecular-function sentences include encoding, enzyme, protein, expression, candidate gene, QTL or locus language, "
-            f"which helps trace trait associations back to molecular identity, expression and candidate-region descriptions in RiceMind text {citation}."
-        ),
-    }
-    return clauses.get(rule["key"], f"Sentence evidence repeatedly contains {rule['en']} signals {citation}.")
-
-
-MECHANISM_TOPIC_RULES = [
-    {
-        "key": "bph_resistance_loci",
-        "zh": "褐飞虱抗性基因、QTL 和抗性位点",
-        "en": "Brown planthopper resistance genes, QTLs and loci",
-        "keywords": [
-            "brown planthopper",
-            "nilaparvata lugens",
-            "bph resistance",
-            "resistance to bph",
-            "bph1",
-            "bph2",
-            "bph3",
-            "bph4",
-            "bph5",
-            "bph6",
-            "bph7",
-            "bph8",
-            "bph9",
-            "bph10",
-            "bph11",
-            "bph12",
-            "bph13",
-            "bph14",
-            "bph15",
-            "bph17",
-            "bph18",
-            "bph26",
-            "bph29",
-            "bph30",
-            "bph32",
-            "bph38",
-            "qtl",
-            "locus",
-            "resistance gene",
-        ],
-    },
-    {
-        "key": "bph_defense_response",
-        "zh": "褐飞虱取食诱导的防御响应和信号通路",
-        "en": "BPH-feeding-induced defense responses and signaling",
-        "keywords": [
-            "feeding",
-            "sucking",
-            "phloem",
-            "sieve",
-            "honeydew",
-            "defense",
-            "defence",
-            "jasmonic",
-            "salicylic",
-            "ethylene",
-            "callose",
-            "ros",
-            "oxidative",
-            "transcriptome",
-            "differentially expressed",
-            "expression",
-            "metabolite",
-            "secondary metabol",
-        ],
-    },
-    {
-        "key": "bph_breeding_introgression",
-        "zh": "抗褐飞虱资源导入、聚合育种和抗性改良",
-        "en": "BPH-resistance introgression, pyramiding and breeding improvement",
-        "keywords": [
-            "introgression",
-            "pyramiding",
-            "marker-assisted",
-            "mas",
-            "breeding",
-            "cultivar",
-            "resistant variety",
-            "resistant varieties",
-            "oryza officinalis",
-            "wild rice",
-            "near-isogenic",
-            "backcross",
-            "donor",
-            "rice improvement",
-        ],
-    },
-    {
-        "key": "bph_candidate_genes",
-        "zh": "候选抗虫基因、受体/凝集素和功能验证线索",
-        "en": "Candidate resistance genes, receptors/lectins and functional evidence",
-        "keywords": [
-            "candidate gene",
-            "nbs-lrr",
-            "cc-nb-lrr",
-            "nb-lrr",
-            "receptor",
-            "lectin",
-            "gna",
-            "protein",
-            "transgenic",
-            "rna-seq",
-            "map-based cloning",
-            "fine mapping",
-            "cloned",
-            "functional",
-        ],
-    },
-    {
-        "key": "ga_core",
-        "zh": "SD1/GA20ox2 介导的赤霉素合成缺陷与半矮秆机制",
-        "en": "SD1/GA20ox2-mediated GA biosynthesis and semi-dwarfism",
-        "keywords": [
-            "osga20ox2",
-            "ga20ox-2",
-            "ga20ox2",
-            "ga 20-oxidase",
-            "ga20 oxidase",
-            "c20-oxidase",
-            "gibberellin",
-            "bioactive ga",
-            "semi-dwarf",
-            "semidwarf",
-            "plant height",
-        ],
-    },
-    {
-        "key": "allele_function",
-        "zh": "等位突变、功能缺失与表达调控",
-        "en": "Allelic mutation, loss of function and expression regulation",
-        "keywords": [
-            "383",
-            "382",
-            "deletion",
-            "loss-of-function",
-            "loss of function",
-            "null allele",
-            "defective",
-            "mutation",
-            "mutant allele",
-            "loss of expression",
-            "promoter",
-            "expression",
-            "transcription",
-        ],
-    },
-    {
-        "key": "architecture_lodging",
-        "zh": "株高、节间/秆形态与抗倒伏农艺链条",
-        "en": "Plant height, internode/culm morphology and lodging-resistance agronomy",
-        "keywords": [
-            "plant height",
-            "semi-dwarf",
-            "semidwarf",
-            "dwarf",
-            "culm",
-            "internode",
-            "elongation",
-            "lodging",
-            "harvest index",
-            "fertilizer",
-            "breaking strength",
-            "culm strength",
-        ],
-    },
-    {
-        "key": "yield_breeding",
-        "zh": "产量、分蘖穗粒性状与育种利用",
-        "en": "Yield, tiller/panicle/grain traits and breeding use",
-        "keywords": [
-            "yield",
-            "grain",
-            "panicle",
-            "tiller",
-            "spikelet",
-            "fertility",
-            "harvest index",
-            "breeding",
-            "cultivar",
-            "green revolution",
-            "high-yielding",
-            "elite rice",
-            "ir8",
-        ],
-    },
-    {
-        "key": "seed_development",
-        "zh": "种子萌发、休眠和早期发育中的 GA 线索",
-        "en": "GA-related evidence in seed germination, dormancy and early development",
-        "keywords": [
-            "seed germination",
-            "germination",
-            "dormancy",
-            "seedling",
-            "mesocotyl",
-            "root",
-            "shoot",
-            "flowering",
-            "heading",
-            "aba",
-            "ja",
-        ],
-    },
-    {
-        "key": "stress_growth_balance",
-        "zh": "盐、旱、铝和养分胁迫中的生长-胁迫平衡线索",
-        "en": "Growth-stress balance under salt, drought, aluminum and nutrient stress",
-        "keywords": [
-            "salt stress",
-            "salt in the soil",
-            "salinity",
-            "nacl",
-            "drought",
-            "drought-stress",
-            "aluminum stress",
-            "alkali stress",
-            "nutrient-deficiency",
-            "nutrient deficiency",
-            "stress tolerance",
-            "osmotic",
-            "aba",
-            "root growth",
-        ],
-    },
-    {
-        "key": "candidate_networks",
-        "zh": "QTL、候选基因和跨物种同源网络",
-        "en": "QTL, candidate-gene and cross-species homolog networks",
-        "keywords": [
-            "qtl",
-            "candidate gene",
-            "candidate genes",
-            "gwas",
-            "homolog",
-            "homologous",
-            "ortholog",
-            "syntenic",
-            "locus",
-            "haplotype",
-            "comparative genomic",
-        ],
-    },
-]
-
-
-def rows_matching_keywords(rows: List[Dict[str, str]], keywords: Sequence[str]) -> List[Dict[str, str]]:
-    matched = []
-    lowered_keywords = [keyword.lower() for keyword in keywords]
-    for row in rows:
-        haystack = f"{row.get('trait', '')} {row.get('sentence', '')}".lower()
-        if any(keyword in haystack for keyword in lowered_keywords):
-            matched.append(row)
-    return matched
-
-
-def group_rows_by_mechanism_topic(rows: List[Dict[str, str]]) -> List[Tuple[Dict[str, Any], List[Dict[str, str]]]]:
-    grouped = []
-    for topic in MECHANISM_TOPIC_RULES:
-        topic_rows = rows_matching_keywords(rows, topic["keywords"])
-        if topic_rows:
-            grouped.append((topic, topic_rows))
-    grouped.sort(key=lambda item: len(item[1]), reverse=True)
-    return grouped[:REPORT_MECHANISM_THEMES]
-
-
 def confidence_distribution_text(rows: List[Dict[str, str]]) -> str:
     counter = Counter(row.get("confidence", "") or "Unspecified" for row in rows)
     return ", ".join(f"{tier}={count}" for tier, count in counter.most_common())
 
 
-def has_any(rows: List[Dict[str, str]], keywords: Sequence[str]) -> bool:
-    return bool(rows_matching_keywords(rows, keywords))
+def evidence_priority(row: Dict[str, str]) -> Tuple[int, int, int, str]:
+    tier_rank = {"High": 0, "Medium": 1, "Low": 2, "Unspecified": 3}.get(row.get("confidence", "") or "Unspecified", 3)
+    has_pmid = 0 if row.get("pmid", "") else 1
+    sentence_len = -len(row.get("sentence", ""))
+    return (tier_rank, has_pmid, sentence_len, row.get("trait", ""))
 
 
-def rows_for_signal(rows: List[Dict[str, str]], keywords: Sequence[str]) -> List[Dict[str, str]]:
-    return rows_matching_keywords(rows, keywords)
+def representative_evidence_records(rows: List[Dict[str, str]], limit: int = 8) -> List[Dict[str, str]]:
+    selected: List[Dict[str, str]] = []
+    seen = set()
+    for row in sorted(rows, key=evidence_priority):
+        key = (row.get("pmid", ""), row.get("sentence_id", ""), row.get("sentence", "")[:100])
+        if key in seen:
+            continue
+        seen.add(key)
+        selected.append({
+            "trait": row.get("trait", ""),
+            "confidence": row.get("confidence", "") or "Unspecified",
+            "evidence_code": row.get("evidence_code", ""),
+            "source_db": row.get("source_db", ""),
+            "pmid": row.get("pmid", ""),
+            "year": row.get("year", ""),
+            "journal": row.get("journal", ""),
+            "sentence_id": row.get("sentence_id", ""),
+            "sentence": row.get("sentence", ""),
+        })
+        if len(selected) >= limit:
+            break
+    return selected
 
 
-def observed_terms(rows: List[Dict[str, str]], terms: Sequence[str], limit: int = 8) -> List[str]:
-    counter: Counter = Counter()
-    for row in rows:
-        haystack = f"{row.get('trait', '')} {row.get('sentence', '')}".lower()
-        for term in terms:
-            if term.lower() in haystack:
-                counter[term] += 1
-    return [term for term, _ in counter.most_common(limit)]
+def data_driven_topic_groups(evidence: List[Dict[str, str]], limit: int = REPORT_MECHANISM_THEMES) -> List[Tuple[str, List[Dict[str, str]]]]:
+    grouped: Dict[str, List[Dict[str, str]]] = defaultdict(list)
+    for row in evidence:
+        label = row.get("trait", "").strip()
+        if not label:
+            label_terms = extract_keywords_from_text(row.get("sentence", ""), 3)
+            label = " / ".join(label_terms) if label_terms else "Unspecified RiceMind evidence"
+        grouped[label].append(row)
+
+    ranked = sorted(
+        grouped.items(),
+        key=lambda item: (
+            -len(item[1]),
+            -len({row.get("pmid", "") for row in item[1] if row.get("pmid", "")}),
+            item[0].lower(),
+        ),
+    )
+    return ranked[:limit]
 
 
-def join_cn(items: Sequence[str]) -> str:
-    return "、".join(items)
+def counter_dict(counter: Counter, limit: int = 12) -> Dict[str, int]:
+    return {str(key): int(value) for key, value in counter.most_common(limit)}
 
 
-def join_en(items: Sequence[str]) -> str:
-    return ", ".join(items)
+def build_mechanism_evidence_bundle(
+    gene: str,
+    traits: List[Dict[str, str]],
+    evidence: List[Dict[str, str]],
+    varieties: List[Dict[str, str]],
+) -> Dict[str, Any]:
+    topics = []
+    for label, rows in data_driven_topic_groups(evidence):
+        topics.append({
+            "topic_label": label,
+            "evidence_records": len(rows),
+            "unique_pmids": len({row.get("pmid", "") for row in rows if row.get("pmid", "")}),
+            "confidence_distribution": counter_dict(Counter(row.get("confidence", "") or "Unspecified" for row in rows)),
+            "evidence_code_distribution": counter_dict(split_counter(rows, "evidence_code"), 8),
+            "source_distribution": counter_dict(split_counter(rows, "source_db"), 8),
+            "top_text_terms": extract_keywords_from_rows(rows, 12, exclude=[gene]),
+            "top_traits": top_traits_for_rows(rows, traits, 8),
+            "top_pmids": collect_pmids(rows, 10),
+            "top_journals": counter_dict(Counter(row.get("journal", "").strip() for row in rows if row.get("journal", "").strip()), 8),
+            "representative_sentences": representative_evidence_records(rows, 8),
+        })
+
+    return {
+        "gene": gene,
+        "generated": date.today().isoformat(),
+        "record_counts": {
+            "traits": len(traits),
+            "sentence_evidence": len(evidence),
+            "unique_pmids": len({row.get("pmid", "") for row in evidence if row.get("pmid", "")}),
+            "varieties": len(varieties),
+        },
+        "global_distributions": {
+            "confidence": counter_dict(Counter(row.get("confidence", "") or "Unspecified" for row in evidence)),
+            "ontology": counter_dict(Counter(row.get("ontology_type", "") or "Unspecified" for row in evidence)),
+            "evidence_code": counter_dict(split_counter(evidence, "evidence_code")),
+            "source": counter_dict(split_counter(evidence, "source_db")),
+            "journal": counter_dict(Counter(row.get("journal", "").strip() for row in evidence if row.get("journal", "").strip())),
+        },
+        "global_text_terms": extract_keywords_from_rows(evidence, 30, exclude=[gene]),
+        "topics": topics,
+        "instruction": (
+            "Use this bundle together with normalized_evidence.csv to write Section 6. "
+            "Topic labels and terms are data-derived from the current gene only. "
+            "Do not reuse fixed BPH, sd1, GA, or any other gene-specific mechanism templates unless those mechanisms are explicitly supported by the returned RiceMind sentences."
+        ),
+    }
 
 
-def add_claim(paragraphs: List[str], text: str) -> None:
+def build_mechanism_prompt_markdown(gene: str, bundle: Dict[str, Any], evidence_csv_name: str, language: str) -> str:
+    is_zh = language.lower().startswith("zh")
+    lines = [
+        f"# RiceMind mechanism synthesis brief: {gene}",
+        "",
+        zh(
+            is_zh,
+            f"请基于 `{evidence_csv_name}` 的全量 RiceMind sentence evidence 和本文件中的压缩证据包，撰写报告第 6 节的个性化机制综述 Markdown。",
+            f"Write the personalized Section 6 mechanism synthesis Markdown from the full RiceMind sentence evidence in `{evidence_csv_name}` and the compact evidence bundle below.",
+        ),
+        "",
+        zh(
+            is_zh,
+            "硬性要求：不要使用预设的 BPH、sd1、GA 或其他基因机制模板；标题和机制主题必须从当前基因的句子证据中归纳。每个机制判断后用 `[PMID1, PMID2]` 标注 RiceMind PMID 来源。",
+            "Hard requirements: do not use preset BPH, sd1, GA, or other gene-specific mechanism templates; headings and mechanism topics must be induced from this gene's sentence evidence. Cite RiceMind PMIDs after each mechanistic claim using `[PMID1, PMID2]`.",
+        ),
+        "",
+        "## Compact evidence topics",
+        "",
+    ]
+    for idx, topic in enumerate(bundle.get("topics", []), 1):
+        lines.extend([
+            f"### Topic {idx}: {topic.get('topic_label', '')}",
+            f"- records: {topic.get('evidence_records', 0)}",
+            f"- unique_pmids: {topic.get('unique_pmids', 0)}",
+            f"- confidence: {json.dumps(topic.get('confidence_distribution', {}), ensure_ascii=False)}",
+            f"- top_terms: {', '.join(topic.get('top_text_terms', []))}",
+            f"- top_pmids: {', '.join(topic.get('top_pmids', []))}",
+            "- representative_sentences:",
+        ])
+        for item in topic.get("representative_sentences", [])[:5]:
+            source = ", ".join(part for part in [item.get("pmid", ""), item.get("year", ""), item.get("confidence", "")] if part)
+            lines.append(f"  - ({source}) {truncate(item.get('sentence', ''), 360)}")
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def add_markdown_paragraph(doc: Any, text: str) -> None:
     cleaned = " ".join(text.split())
     if cleaned:
-        paragraphs.append(cleaned)
+        doc.add_paragraph(cleaned)
 
 
-def build_bph_review_paragraphs(gene: str, topic: Dict[str, Any], rows: List[Dict[str, str]], is_zh: bool) -> List[str]:
-    paragraphs: List[str] = []
-    unique_pmids = len({row.get("pmid", "") for row in rows if row.get("pmid", "")})
-    citation = pmid_citation(collect_pmids(rows, 8))
-    tier_text = confidence_distribution_text(rows)
-    core_terms = observed_terms(
-        rows,
-        [
-            "BPH",
-            "brown planthopper",
-            "Nilaparvata lugens",
-            "Bph14",
-            "Bph15",
-            "Bph18",
-            "Bph26",
-            "Bph3",
-            "QTL",
-            "resistance gene",
-            "Oryza officinalis",
-            "feeding",
-            "phloem",
-            "honeydew",
-            "NBS-LRR",
-            "lectin",
-            "GNA",
-            "introgression",
-            "pyramiding",
-        ],
-        10,
+def insert_mechanism_markdown(doc: Any, mechanism_md: Path) -> bool:
+    if not mechanism_md.exists():
+        return False
+    text = mechanism_md.read_text(encoding="utf-8")
+    buffer: List[str] = []
+
+    def flush() -> None:
+        if buffer:
+            add_markdown_paragraph(doc, " ".join(buffer))
+            buffer.clear()
+
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            flush()
+            continue
+        if line.startswith("### "):
+            flush()
+            doc.add_heading(line[4:].strip(), 3)
+        elif line.startswith("## "):
+            flush()
+            doc.add_heading(line[3:].strip(), 2)
+        elif line.startswith("# "):
+            flush()
+            title = line[2:].strip()
+            if title:
+                doc.add_heading(title, 2)
+        elif line.startswith("- "):
+            flush()
+            doc.add_paragraph(line[2:].strip(), style="List Bullet")
+        else:
+            buffer.append(line)
+    flush()
+    return True
+
+
+def add_data_driven_mechanism_brief(doc: Any, gene: str, traits: List[Dict[str, str]], evidence: List[Dict[str, str]], is_zh: bool) -> None:
+    bundle = build_mechanism_evidence_bundle(gene, traits, evidence, [])
+    doc.add_paragraph(
+        zh(
+            is_zh,
+            "未提供 `--mechanism-md` 个性化机制综述，因此本节只输出数据驱动的证据主题摘要。脚本不会把这些主题自动改写为具体生物机制，以避免把报告内容锁定在某个预设基因模板中；完整句子证据见 normalized_evidence.csv，压缩证据包见 mechanism_evidence_bundle.json。",
+            "No personalized `--mechanism-md` synthesis was provided, so this section reports only data-driven evidence-topic summaries. The script does not rewrite these topics into specific biological mechanisms, avoiding any preset gene-template lock-in. Full sentence evidence is in normalized_evidence.csv and the compact evidence bundle is in mechanism_evidence_bundle.json.",
+        )
     )
-    if is_zh:
-        add_claim(
-            paragraphs,
-            f"RiceMind 在“{topic['zh']}”主题下提供 {len(rows)} 条句子级证据，覆盖 {unique_pmids} 个 PMID，置信层级分布为 {tier_text}。"
-            f"需要特别注意，BPH 在文献句子中常同时指 brown planthopper 这个害虫/性状语境和 BPH/Bph 抗性位点；因此本节把它作为褐飞虱抗性证据集合来综述，"
-            f"不把所有句子都强行解释为单一已克隆基因的功能。该证据集合中反复出现的核心词包括 {join_cn(core_terms) if core_terms else '褐飞虱、抗性、QTL 和候选基因'} {citation}。",
-        )
-    else:
-        add_claim(
-            paragraphs,
-            f"RiceMind provides {len(rows)} sentence-level records for {topic['en']}, covering {unique_pmids} PMIDs with confidence distribution {tier_text}. "
-            f"BPH in the text often denotes both brown planthopper as the pest/trait context and BPH/Bph resistance loci; therefore this section synthesizes a BPH-resistance evidence set rather than forcing every sentence into a single cloned-gene function. "
-            f"Repeated terms include {join_en(core_terms) if core_terms else 'brown planthopper, resistance, QTL and candidate genes'} {citation}.",
-        )
-
-    loci_rows = rows_for_signal(rows, ["bph1", "bph2", "bph3", "bph4", "bph5", "bph6", "bph7", "bph8", "bph9", "bph10", "bph11", "bph12", "bph13", "bph14", "bph15", "bph17", "bph18", "bph26", "bph29", "bph30", "bph32", "bph38", "qtl", "locus", "resistance gene"])
-    feeding_rows = rows_for_signal(rows, ["feeding", "sucking", "phloem", "sieve", "honeydew", "nymph", "adult", "oviposition", "survival", "antibiosis", "antixenosis", "tolerance"])
-    signaling_rows = rows_for_signal(rows, ["defense", "defence", "jasmonic", "salicylic", "ethylene", "callose", "ros", "oxidative", "transcriptome", "differentially expressed", "expression", "metabolite", "secondary metabol"])
-    breeding_rows = rows_for_signal(rows, ["introgression", "pyramiding", "marker-assisted", "mas", "breeding", "cultivar", "resistant variety", "resistant varieties", "oryza officinalis", "wild rice", "near-isogenic", "backcross", "donor", "rice improvement"])
-    candidate_rows = rows_for_signal(rows, ["candidate gene", "nbs-lrr", "cc-nb-lrr", "nb-lrr", "receptor", "lectin", "gna", "transgenic", "map-based cloning", "fine mapping", "cloned", "functional"])
-
-    plan = {
-        "bph_resistance_loci": {"loci", "candidate", "breeding"},
-        "bph_defense_response": {"feeding", "signaling", "candidate"},
-        "bph_breeding_introgression": {"breeding", "loci"},
-        "bph_candidate_genes": {"candidate", "signaling", "loci"},
-    }.get(topic.get("key", ""), {"loci", "feeding", "signaling", "breeding", "candidate"})
-
-    if "loci" in plan and loci_rows:
-        c = pmid_citation(collect_pmids(loci_rows, 7))
-        loci_terms = observed_terms(loci_rows, ["Bph1", "Bph2", "Bph3", "Bph10", "Bph11", "Bph12", "Bph14", "Bph15", "Bph18", "Bph26", "Bph29", "Bph30", "Bph32", "BPH38", "QTL", "locus", "resistance gene"], 12)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"遗传定位层面的句子把褐飞虱抗性组织为多位点体系，而不是单一 trait 标签：{join_cn(loci_terms) if loci_terms else '多个 Bph/BPH 位点、QTL 和 resistance gene'} 在文献证据中反复出现。"
-                f"这些句子提示，RiceMind 中的 BPH 抗性机制首先体现为抗性位点发现、精细定位、候选区间缩小和已报道抗性基因资源的累积；报告应将其写成抗性遗传资源网络，而不是把 BPH 简化成一个孤立基因 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At the genetic-mapping level, the sentences organize brown planthopper resistance as a multi-locus system rather than a single trait label: {join_en(loci_terms) if loci_terms else 'multiple Bph/BPH loci, QTLs and resistance genes'} recur in the evidence. "
-                f"This indicates that the RiceMind BPH-resistance mechanism starts from locus discovery, fine mapping, candidate-region narrowing and accumulation of reported resistance genes, best described as a resistance-resource network rather than one isolated gene {c}.",
-            )
-
-    if "feeding" in plan and feeding_rows:
-        c = pmid_citation(collect_pmids(feeding_rows, 7))
-        feeding_terms = observed_terms(feeding_rows, ["feeding", "phloem", "sieve", "honeydew", "nymph", "adult", "oviposition", "survival", "antibiosis", "antixenosis", "tolerance"], 10)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"害虫-寄主互作层面的句子把抗性表型具体化为取食和存活过程：{join_cn(feeding_terms) if feeding_terms else '取食、蜜露、若虫/成虫表现和存活'} 等词汇把抗性从“有/无抗性”推进到褐飞虱在水稻上的取食行为、韧皮部利用、繁殖或存活结果。"
-                f"因此，BPH 相关证据可被综述为寄主因素改变褐飞虱取食适合度和群体表现的文本证据链 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At the pest-host interaction level, sentences make resistance phenotypes concrete through feeding and survival processes: {join_en(feeding_terms) if feeding_terms else 'feeding, honeydew, nymph/adult performance and survival'} connect resistance to planthopper behavior, phloem use, reproduction or survival on rice. "
-                f"The BPH evidence can therefore be synthesized as a text-derived chain in which host factors alter brown-planthopper feeding fitness and population performance {c}.",
-            )
-
-    if "signaling" in plan and signaling_rows:
-        c = pmid_citation(collect_pmids(signaling_rows, 7))
-        signal_terms = observed_terms(signaling_rows, ["defense", "jasmonic", "salicylic", "ethylene", "callose", "ROS", "oxidative", "transcriptome", "differentially expressed", "expression", "metabolite", "secondary metabol"], 10)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"防御响应层面的句子进一步把 BPH 抗性连接到诱导表达和激素/代谢网络：{join_cn(signal_terms) if signal_terms else 'defense、表达变化、激素和代谢'} 等词汇提示，褐飞虱取食后的水稻响应不只是结构性抗性，"
-                f"还可能包括转录重编程、防御相关激素信号、氧化/ROS 过程、胼胝质或次生代谢调节。若这些句子主要来自 NLP 共现，应写成候选防御机制，而不是已验证因果通路 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Defense-response sentences connect BPH resistance with induced expression and hormone/metabolic networks: {join_en(signal_terms) if signal_terms else 'defense, expression change, hormones and metabolism'} suggest that rice responses to planthopper feeding may include transcriptional reprogramming, defense hormone signaling, oxidative/ROS processes, callose or secondary metabolism. "
-                f"When supported mainly by NLP co-occurrence, this should be written as a candidate defense mechanism rather than a validated causal pathway {c}.",
-            )
-
-    if "breeding" in plan and breeding_rows:
-        c = pmid_citation(collect_pmids(breeding_rows, 7))
-        breeding_terms = observed_terms(breeding_rows, ["introgression", "pyramiding", "marker-assisted", "MAS", "breeding", "Oryza officinalis", "wild rice", "near-isogenic", "backcross", "donor", "resistant variety"], 10)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"育种利用层面的句子显示，BPH 抗性证据常与 {join_cn(breeding_terms) if breeding_terms else '抗性资源导入、回交、聚合和分子标记辅助选择'} 相连。"
-                f"这说明 RiceMind 文本中的机制外延不仅是分子防御，还包括从野生稻或抗性供体导入 Bph 位点、在栽培背景中聚合多个抗性基因、并通过近等基因系或回交群体验证抗性的育种流程 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Breeding-use sentences connect BPH resistance with {join_en(breeding_terms) if breeding_terms else 'introgression, backcrossing, pyramiding and marker-assisted selection'}. "
-                f"Thus, the RiceMind mechanism extends beyond molecular defense to the breeding workflow of introgressing Bph loci from wild rice or resistant donors, pyramiding resistance genes in cultivated backgrounds and validating resistance in near-isogenic or backcross populations {c}.",
-            )
-
-    if "candidate" in plan and candidate_rows:
-        c = pmid_citation(collect_pmids(candidate_rows, 7))
-        candidate_terms = observed_terms(candidate_rows, ["candidate gene", "NBS-LRR", "CC-NB-LRR", "receptor", "lectin", "GNA", "transgenic", "map-based cloning", "fine mapping", "cloned", "functional"], 10)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"候选基因和功能验证层面的句子出现 {join_cn(candidate_terms) if candidate_terms else '候选基因、受体、NBS-LRR/凝集素和转基因验证'} 等线索。"
-                f"这些证据可将 BPH 抗性从遗传区间进一步推进到候选蛋白类型和实验系统：受体样蛋白、NBS-LRR 类抗性蛋白、凝集素/转基因表达或图位克隆等描述，为后续功能实验提供更具体的机制入口 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Candidate-gene and functional-evidence sentences contain {join_en(candidate_terms) if candidate_terms else 'candidate genes, receptors, NBS-LRR/lectins and transgenic validation'} signals. "
-                f"These records move BPH resistance from genetic intervals toward candidate protein classes and experimental systems, including receptor-like proteins, NBS-LRR resistance proteins, lectin/transgenic expression or map-based cloning, providing more specific entry points for functional validation {c}.",
-            )
-
-    if len(paragraphs) == 1:
-        add_claim(
-            paragraphs,
+    for topic in bundle.get("topics", []):
+        label = topic.get("topic_label", "RiceMind evidence topic")
+        doc.add_heading(label, 2)
+        terms = topic.get("top_text_terms", [])
+        pmids = topic.get("top_pmids", [])
+        doc.add_paragraph(
             zh(
                 is_zh,
-                "该 BPH 主题尚未形成可稳定抽取的机制链条；完整原始证据已保存在 normalized_evidence.csv 以供人工追溯。",
-                "This BPH topic did not yield a stable mechanism chain; full original evidence is preserved in normalized_evidence.csv for manual tracing.",
-            ),
-        )
-    return paragraphs
-
-
-def build_mechanism_review_paragraphs(gene: str, topic: Dict[str, Any], rows: List[Dict[str, str]], is_zh: bool) -> List[str]:
-    if stringify(topic.get("key", "")).startswith("bph_"):
-        return build_bph_review_paragraphs(gene, topic, rows, is_zh)
-
-    paragraphs: List[str] = []
-    unique_pmids = len({row.get("pmid", "") for row in rows if row.get("pmid", "")})
-    citation = pmid_citation(collect_pmids(rows, 8))
-    tier_text = confidence_distribution_text(rows)
-    core_terms = observed_terms(
-        rows,
-        [
-            "SD1",
-            "sd1",
-            "OsGA20ox2",
-            "GA20ox-2",
-            "GA20 oxidase",
-            "C20-oxidase",
-            "gibberellin",
-            "bioactive GA",
-            "SLR1",
-            "DELLA",
-            "GID1",
-            "ABA",
-            "JA",
-            "QTL",
-            "lodging",
-            "semi-dwarf",
-            "plant height",
-        ],
-        10,
-    )
-
-    if is_zh:
-        add_claim(
-            paragraphs,
-            f"RiceMind 在“{topic['zh']}”主题下提供 {len(rows)} 条句子级证据，覆盖 {unique_pmids} 个 PMID，置信层级分布为 {tier_text}。"
-            f"这些句子的价值不在于再次证明若干 trait 与 {gene} 共现，而在于它们共同给出了可追溯的文本证据链："
-            f"{join_cn(core_terms) if core_terms else '相关分子、通路和表型词汇'} 在同一证据集合中反复出现，使 {gene} 的机制描述可以从 RiceMind 原始句子中组织出来 {citation}。",
-        )
-    else:
-        add_claim(
-            paragraphs,
-            f"RiceMind provides {len(rows)} sentence-level records for {topic['en']}, covering {unique_pmids} PMIDs with confidence distribution {tier_text}. "
-            f"The value of these sentences is not another trait list, but a traceable text-derived chain in which "
-            f"{join_en(core_terms) if core_terms else 'molecular, pathway and phenotype terms'} repeatedly co-occur and support a RiceMind-grounded mechanism narrative for {gene} {citation}.",
+                f"该主题包含 {topic.get('evidence_records', 0)} 条句子级证据，覆盖 {topic.get('unique_pmids', 0)} 个 PMID；置信层级分布为 {json.dumps(topic.get('confidence_distribution', {}), ensure_ascii=False)}。当前基因证据中自动抽取的高频文本词包括 {join_items(terms, True) if terms else '无稳定高频词'}，代表性 PMID 包括 {join_items(pmids, True) if pmids else '未提供'}。",
+                f"This topic contains {topic.get('evidence_records', 0)} sentence-level records covering {topic.get('unique_pmids', 0)} PMIDs; confidence distribution is {json.dumps(topic.get('confidence_distribution', {}), ensure_ascii=False)}. Data-derived high-frequency text terms include {join_items(terms) if terms else 'no stable terms'}, and representative PMIDs include {join_items(pmids) if pmids else 'unavailable'}.",
+            )
         )
 
-    ga_rows = rows_for_signal(rows, ["gibberellin", "ga20", "ga 20-oxidase", "c20-oxidase", "ga biosynthesis", "ga synthesis", "bioactive ga", "ga pathway", "ga homeostasis"])
-    loss_rows = rows_for_signal(rows, ["383", "382", "deletion", "loss-of-function", "loss of function", "null allele", "defective", "loss of expression", "reduced expression", "mutation", "mutant allele"])
-    della_rows = rows_for_signal(rows, ["slr1", "della", "gid1", "ga signal", "ga signaling", "ga-triggered degradation"])
-    architecture_rows = rows_for_signal(rows, ["plant height", "semi-dwarf", "semidwarf", "dwarf", "culm", "internode", "elongation", "cell elongation", "shorter culm"])
-    agronomy_rows = rows_for_signal(rows, ["lodging", "yield", "harvest index", "fertilizer", "high-yielding", "green revolution", "breeding", "cultivar", "culm strength", "breaking strength", "compromised yield"])
-    development_rows = rows_for_signal(rows, ["seed germination", "germination", "dormancy", "mesocotyl", "seedling", "panicle", "grain", "spikelet", "heading", "flower", "tiller"])
-    stress_rows = rows_for_signal(rows, ["salt stress", "salt in the soil", "salinity", "nacl", "drought", "drought-stress", "aluminum stress", "alkali stress", "nutrient-deficiency", "nutrient deficiency", "root growth", "stress tolerance", "osmotic"])
-    regulation_rows = rows_for_signal(rows, ["promoter", "expression", "transcription", "qtl", "candidate gene", "gwas", "homolog", "ortholog", "syntenic", "locus", "haplotype", "oseil1a", "osphq1", "bst", "bzip72", "zfp207", "osstp28"])
-    claim_plan = {
-        "ga_core": {"ga", "loss", "della", "architecture"},
-        "allele_function": {"loss", "ga", "regulation"},
-        "architecture_lodging": {"architecture", "agronomy", "ga", "loss"},
-        "yield_breeding": {"agronomy", "development", "architecture"},
-        "seed_development": {"development", "ga", "regulation"},
-        "stress_growth_balance": {"stress", "ga", "della"},
-        "candidate_networks": {"regulation", "ga", "loss"},
-    }.get(topic.get("key", ""), {"ga", "loss", "della", "architecture", "agronomy", "development", "stress", "regulation"})
 
-    if "ga" in claim_plan and ga_rows:
-        c = pmid_citation(collect_pmids(ga_rows, 7))
-        if is_zh:
-            late_step = "、并多次具体到 GA 通路的 late step / second-to-last step" if has_any(ga_rows, ["late stage", "late steps", "second-to-last"]) else ""
-            add_claim(
-                paragraphs,
-                f"在分子层面，证据句将 {gene} 具体定位到 SD1/OsGA20ox2/GA20ox-2、GA20 oxidase 或 C20-oxidase 等身份，而不是泛泛的激素关联；"
-                f"这些句子把它放入 gibberellin/GA biosynthesis、GA synthesis、bioactive GA 或 GA homeostasis 的语境{late_step}。"
-                f"因此，RiceMind 文本支持的核心机制可以概括为：{gene} 通过 GA20-oxidase 相关活性影响活性赤霉素供应，从而为后续株高和发育表型提供上游通路解释 {c}。",
+def add_mechanism_synthesis(
+    doc: Any,
+    gene: str,
+    traits: List[Dict[str, str]],
+    evidence: List[Dict[str, str]],
+    is_zh: bool,
+    mechanism_md: Optional[Path] = None,
+) -> None:
+    if mechanism_md:
+        inserted = insert_mechanism_markdown(doc, mechanism_md)
+        if inserted:
+            return
+        doc.add_paragraph(
+            zh(
+                is_zh,
+                f"指定的个性化机制综述 Markdown 不存在或不可读：{mechanism_md}。以下改为输出数据驱动证据主题摘要。",
+                f"The specified personalized mechanism Markdown was missing or unreadable: {mechanism_md}. A data-driven evidence-topic summary is provided instead.",
             )
-        else:
-            late_step = ", often specifying late or second-to-last GA biosynthetic steps" if has_any(ga_rows, ["late stage", "late steps", "second-to-last"]) else ""
-            add_claim(
-                paragraphs,
-                f"At the molecular level, the sentences identify {gene} as SD1/OsGA20ox2/GA20ox-2, GA20 oxidase or C20-oxidase rather than a generic hormone association. "
-                f"They place it in gibberellin/GA biosynthesis, GA synthesis, bioactive GA or GA homeostasis contexts{late_step}. "
-                f"Thus, the RiceMind-supported core mechanism is that {gene} affects bioactive gibberellin supply through GA20-oxidase-related activity, providing the upstream pathway basis for height and developmental phenotypes {c}.",
-            )
+        )
 
-    if "loss" in claim_plan and loss_rows:
-        c = pmid_citation(collect_pmids(loss_rows, 7))
-        deletion_note = "383/382-bp deletion、" if has_any(loss_rows, ["383", "382"]) else ""
-        expression_note = "loss of expression / reduced expression、" if has_any(loss_rows, ["loss of expression", "reduced expression"]) else ""
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"在等位变异层面，句子证据进一步把 {deletion_note}{expression_note}loss-of-function、null allele、defective enzyme 或 mutant allele 与 {gene} 联系起来。"
-                f"这些描述共同指向同一个文本机制：等位突变或表达降低削弱 GA20-oxidase 酶功能，导致 GA 合成受阻或 bioactive/cellular GA 水平下降；"
-                f"这比单纯列出“dwarf”“height”这样的 trait 更接近 RiceMind 句子证据中的因果链条 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At the allelic level, the evidence links {gene} to {deletion_note}{expression_note}loss-of-function, null alleles, defective enzymes or mutant alleles. "
-                f"Together these sentences support a text-derived mechanism in which allelic mutation or reduced expression weakens GA20-oxidase function, blocks GA synthesis or lowers bioactive/cellular GA, which is closer to a causal chain than merely listing dwarf or height traits {c}.",
-            )
-
-    if "della" in claim_plan and della_rows:
-        c = pmid_citation(collect_pmids(della_rows, 7))
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"部分证据句把这一 GA 合成模块继续连接到 GA signal transduction：其中出现了 DELLA、SLR1、GID1 或 GA-triggered degradation 等词汇。"
-                f"这些文本线索支持这样一种 RiceMind 内部可追溯的解释：当 {gene}/OsGA20ox2 相关 GA 合成下降时，GA 信号输出和 DELLA/SLR1 负调控模块随之被牵动，"
-                f"从而把“酶功能缺失”连接到“生长受限”的激素信号层 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Some evidence extends the GA biosynthetic module into GA signal transduction through DELLA, SLR1, GID1 or GA-triggered degradation language. "
-                f"These RiceMind text signals support an interpretation in which reduced {gene}/OsGA20ox2-dependent GA biosynthesis perturbs GA output and the DELLA/SLR1 growth-repression module, connecting enzyme disruption to constrained growth {c}.",
-            )
-
-    if "architecture" in claim_plan and architecture_rows:
-        c = pmid_citation(collect_pmids(architecture_rows, 7))
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"在表型层面，句子证据把上述分子扰动与 plant height、semi-dwarf/dwarf、culm length、internode、cell elongation 等词汇相连。"
-                f"因此，{gene} 的表型机制不是孤立的“矮化”标签，而是“GA20-oxidase 功能变化-活性 GA 供应变化-细胞或节间伸长受限-株高下降”的连续链条；"
-                f"在 High 证据或含 curated evidence code 的 trait 中，这一链条尤其适合用作较保守的机制表述 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At the phenotype level, the evidence connects the molecular disturbance with plant height, semi-dwarf/dwarf, culm length, internode and cell-elongation language. "
-                f"The mechanism is therefore not an isolated dwarf label, but a chain from altered GA20-oxidase function to changed active GA supply, constrained cell or internode elongation and reduced plant height; curated or High evidence can support this conservative wording {c}.",
-            )
-
-    if "agronomy" in claim_plan and agronomy_rows:
-        c = pmid_citation(collect_pmids(agronomy_rows, 7))
-        caution = "同时，部分句子也提到 culm strength 降低、fine/weak culm 或 excessive dwarfing/compromised yield，提示 sd1 等位型并非越强越好，育种利用需要在抗倒伏、株型和产量之间平衡。" if has_any(agronomy_rows, ["culm strength", "weak", "fine culm", "excessive dwarfing", "compromised yield"]) else ""
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"在农艺价值层面，RiceMind 句子将半矮化机制与 lodging resistance、fertilizer response、harvest index、yield、Green Revolution 以及现代高产品种利用相连。"
-                f"这些证据把 {gene} 从单一生理机制延伸为育种链条：降低株高有助于降低倒伏风险，使高肥条件下的收获指数和产量潜力更容易被利用。"
-                f"{caution} {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At the agronomic level, RiceMind sentences connect semi-dwarfism with lodging resistance, fertilizer response, harvest index, yield, the Green Revolution and modern high-yielding cultivar use. "
-                f"This extends {gene} from a physiological mechanism into a breeding chain: reduced height lowers lodging risk and enables harvest-index and yield gains under fertilized conditions. "
-                f"{caution} {c}.",
-            )
-
-    if "development" in claim_plan and development_rows:
-        c = pmid_citation(collect_pmids(development_rows, 7))
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"在发育阶段层面，证据句还把 {gene}/OsGA20ox2 相关 GA 调控与 seed germination、dormancy、mesocotyl、seedling、panicle、grain、spikelet 或 tiller 等语境连接。"
-                f"这些句子提示 sd1 的机制边界可从株高扩展到 GA/ABA/JA 相关的萌发、休眠和早期生长调控，但这类扩展常由 NLP 共现或候选基因证据支持，"
-                f"应表述为 RiceMind 数据中的候选发育机制线索 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"At developmental stages, evidence links {gene}/OsGA20ox2-related GA regulation with seed germination, dormancy, mesocotyl, seedling, panicle, grain, spikelet or tiller contexts. "
-                f"These sentences extend the sd1 mechanism beyond plant height into GA/ABA/JA-related germination, dormancy and early growth regulation, but this extension is often NLP or candidate-gene supported and should be phrased as a RiceMind candidate mechanism {c}.",
-            )
-
-    if "stress" in claim_plan and stress_rows:
-        c = pmid_citation(collect_pmids(stress_rows, 7))
-        stress_terms = observed_terms(stress_rows, ["salt stress", "salinity", "drought", "aluminum stress", "alkali stress", "root growth", "ABA", "GA20ox", "SD1-OE", "stress tolerance", "nutrient-deficiency"], 8)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"逆境相关证据更适合写成“生长-胁迫平衡”的候选线索，而不是直接断言 {gene} 是抗盐或抗旱因果基因。"
-                f"在这些句子中，{join_cn(stress_terms) if stress_terms else '盐、旱、铝、养分和根系生长'} 等语境与 GA20ox/SD1 或 GA 信号共同出现；"
-                f"例如有证据把盐胁迫转录组差异基因连接到 plant hormone metabolism/signaling 和 GA20-oxidase，也有证据在铝胁迫或根生长背景下讨论 SD1/GA biosynthesis。"
-                f"因此，该部分应总结为：RiceMind 文本提示 sd1 介导的 GA 生长模块可能参与逆境下的生长分配或激素响应，但低置信度/NLP 证据不宜被写成已验证的抗逆机制 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Stress-related evidence is best written as a candidate growth-stress balance signal rather than a direct claim that {gene} is a causal salt- or drought-resistance gene. "
-                f"Terms such as {join_en(stress_terms) if stress_terms else 'salt, drought, aluminum, nutrient stress and root growth'} co-occur with GA20ox/SD1 or GA signaling; for example, some sentences connect salt-stress transcriptomic DEGs with plant hormone metabolism/signaling and GA20-oxidase, while others discuss SD1/GA biosynthesis under aluminum stress or root-growth contexts. "
-                f"Thus, RiceMind text suggests that the sd1-mediated GA growth module may participate in stress-time growth allocation or hormonal response, but Low/NLP evidence should not be written as a validated stress-resistance mechanism {c}.",
-            )
-
-    if "regulation" in claim_plan and regulation_rows:
-        c = pmid_citation(collect_pmids(regulation_rows, 7))
-        regulators = observed_terms(regulation_rows, ["OsEIL1a", "OsPHQ1", "GID1", "SLR1", "bZIP72", "ZFP207", "OsSTP28", "QTL", "GWAS", "candidate gene", "homolog", "promoter"], 10)
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"表达调控和候选位点证据提供了机制网络的另一层：句子中出现 {join_cn(regulators) if regulators else 'promoter、QTL、candidate gene、homolog 或 expression'} 等线索。"
-                f"这些证据可以把 {gene} 与上游转录调控、QTL/候选区间、同源基因或跨物种比较联系起来，说明 RiceMind 中的 sd1 机制并不只是一条单基因线性路径，"
-                f"还包括可用于后续实验验证的调控节点和遗传背景差异 {c}。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                f"Expression and candidate-locus evidence adds another network layer: sentences contain {join_en(regulators) if regulators else 'promoter, QTL, candidate gene, homolog or expression'} terms. "
-                f"These records connect {gene} with upstream transcriptional regulation, QTL/candidate regions, homologs or cross-species comparisons, indicating that the RiceMind sd1 mechanism is not only a single-gene linear path but also a set of regulatory nodes and genetic-background differences for follow-up validation {c}.",
-            )
-
-    if len(paragraphs) == 1:
-        if is_zh:
-            add_claim(
-                paragraphs,
-                f"该主题的证据句尚未形成更具体的机制链条；报告保留所有原始句子、PMID、trait 和 sentence ID 到 normalized_evidence.csv，以便人工追溯和二次综述。",
-            )
-        else:
-            add_claim(
-                paragraphs,
-                "This topic did not yield a more specific mechanism chain; all original sentences, PMIDs, traits and sentence IDs remain in normalized_evidence.csv for manual tracing and secondary synthesis.",
-            )
-    return paragraphs
-
-
-def add_mechanism_synthesis(doc: Any, gene: str, traits: List[Dict[str, str]], evidence: List[Dict[str, str]], is_zh: bool) -> None:
     if not evidence:
         doc.add_paragraph(
             zh(
@@ -2374,19 +1712,7 @@ def add_mechanism_synthesis(doc: Any, gene: str, traits: List[Dict[str, str]], e
         )
         return
 
-    ranked_themes = group_rows_by_mechanism_topic(evidence)
-    intro = zh(
-        is_zh,
-        "以下综述段落以全量 RiceMind sentence evidence 为核心证据，不再逐层罗列 trait 名称。生成逻辑是先把句子按机制主题聚合，再从原句中抽取“分子身份-等位突变/表达变化-通路扰动-激素信号-表型/农艺结果”的证据链，并在每个机制判断后保留 PMID。完整原句、trait、PMID 和 sentence ID 保存在 normalized_evidence.csv。",
-        "The following synthesis uses the full RiceMind sentence evidence as the evidence substrate rather than listing trait names tier by tier. Sentences are grouped by mechanism topic, then converted into a text-derived chain from molecular identity, allelic/expression change, pathway perturbation and hormonal signaling to phenotype or agronomic outcome, with PMID traceability. Full original sentences, traits, PMIDs and sentence IDs are preserved in normalized_evidence.csv.",
-    )
-    doc.add_paragraph(intro)
-
-    for topic, rows in ranked_themes:
-        doc.add_heading(topic["zh"] if is_zh else topic["en"], 2)
-        for paragraph in build_mechanism_review_paragraphs(gene, topic, rows, is_zh):
-            doc.add_paragraph(paragraph)
-
+    add_data_driven_mechanism_brief(doc, gene, traits, evidence, is_zh)
 
 def build_docx(
     gene: str,
@@ -2399,6 +1725,7 @@ def build_docx(
     language: str,
     max_evidence_rows: int,
     max_trait_rows: int,
+    mechanism_md: Optional[Path] = None,
 ) -> None:
     try:
         from docx import Document
@@ -2514,7 +1841,7 @@ def build_docx(
     add_table(doc, summary_rows)
 
     doc.add_heading(zh(is_zh, "6. RiceMind 句子证据驱动的机制综述", "6. RiceMind Sentence-Evidence-Driven Mechanism Synthesis"), 1)
-    add_mechanism_synthesis(doc, gene, traits, evidence, is_zh)
+    add_mechanism_synthesis(doc, gene, traits, evidence, is_zh, mechanism_md)
 
     doc.add_heading(zh(is_zh, "7. 研究热点与年代变迁分析", "7. Temporal Analysis and Hotspot Evolution"), 1)
     temporal_rows = temporal_hotspot_rows(evidence, is_zh)
@@ -2620,6 +1947,7 @@ def main() -> int:
     parser.add_argument("--skip-trait-evidence", action="store_true", help="Skip per-trait search-by-trait-and-gene calls")
     parser.add_argument("--max-evidence-rows", type=int, default=0, help="Retained for backward compatibility; full evidence is written to CSV, not the DOCX body")
     parser.add_argument("--max-trait-rows", type=int, default=REPORT_TRAIT_ROWS, help=f"Max trait rows in DOCX summary table; default {REPORT_TRAIT_ROWS}")
+    parser.add_argument("--mechanism-md", type=Path, help="Optional personalized Section 6 mechanism synthesis Markdown generated from the current gene's RiceMind evidence")
     args = parser.parse_args()
 
     if args.no_api and not args.input_json:
@@ -2647,18 +1975,29 @@ def main() -> int:
     varieties = normalize_varieties(bundle)
     bundle["api_calls"] = compact_api_calls(bundle.get("api_calls") or [])
 
+    traits_csv = out_path.with_name(f"{out_path.stem}_normalized_traits.csv")
+    evidence_csv = out_path.with_name(f"{out_path.stem}_normalized_evidence.csv")
+    varieties_csv = out_path.with_name(f"{out_path.stem}_normalized_varieties.csv")
+    payload_json = out_path.with_name(f"{out_path.stem}_payload.json")
+    mechanism_bundle_json = out_path.with_name(f"{out_path.stem}_mechanism_evidence_bundle.json")
+    mechanism_brief_md = out_path.with_name(f"{out_path.stem}_mechanism_synthesis_brief.md")
+
     write_csv(
-        out_path.with_name(f"{out_path.stem}_normalized_traits.csv"),
+        traits_csv,
         traits,
         ["gene", "rap_id", "trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "support", "year"],
     )
     write_csv(
-        out_path.with_name(f"{out_path.stem}_normalized_evidence.csv"),
+        evidence_csv,
         evidence,
         ["trait", "ontology_type", "ontology_id", "evidence_code", "source_db", "confidence", "pmid", "sentence_id", "year", "title", "journal", "doi", "sentence"],
     )
-    write_csv(out_path.with_name(f"{out_path.stem}_normalized_varieties.csv"), varieties, ["variety"])
-    write_json(out_path.with_name(f"{out_path.stem}_payload.json"), bundle)
+    write_csv(varieties_csv, varieties, ["variety"])
+    write_json(payload_json, bundle)
+
+    mechanism_bundle = build_mechanism_evidence_bundle(args.gene, traits, evidence, varieties)
+    write_json(mechanism_bundle_json, mechanism_bundle)
+    write_text(mechanism_brief_md, build_mechanism_prompt_markdown(args.gene, mechanism_bundle, evidence_csv.name, args.language))
 
     fig_paths = {
         "confidence": plot_counter(Counter(row["confidence"] for row in traits if row["confidence"]), "Confidence-tier distribution", fig_dir / "confidence_distribution.png"),
@@ -2670,19 +2009,21 @@ def main() -> int:
     }
 
     try:
-        build_docx(args.gene, bundle, traits, evidence, varieties, out_path, fig_paths, args.language, args.max_evidence_rows, args.max_trait_rows)
+        build_docx(args.gene, bundle, traits, evidence, varieties, out_path, fig_paths, args.language, args.max_evidence_rows, args.max_trait_rows, args.mechanism_md)
     except RuntimeError as exc:
         print(str(exc), file=sys.stderr)
         return 2
 
     print(f"Wrote {out_path}")
-    print(f"Wrote {out_path.with_name(f'{out_path.stem}_payload.json')}")
+    print(f"Wrote {payload_json}")
+    print(f"Wrote {mechanism_bundle_json}")
+    print(f"Wrote {mechanism_brief_md}")
     if traits:
-        print(f"Wrote {out_path.with_name(f'{out_path.stem}_normalized_traits.csv')}")
+        print(f"Wrote {traits_csv}")
     if evidence:
-        print(f"Wrote {out_path.with_name(f'{out_path.stem}_normalized_evidence.csv')}")
+        print(f"Wrote {evidence_csv}")
     if varieties:
-        print(f"Wrote {out_path.with_name(f'{out_path.stem}_normalized_varieties.csv')}")
+        print(f"Wrote {varieties_csv}")
     return 0
 
 

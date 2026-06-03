@@ -140,8 +140,9 @@ Required content:
 - Organize the synthesis by mechanism topic, not by raw sentence, raw trait, or confidence-tier list.
 - Treat trait labels as indexing terms only; the mechanism prose must be grounded primarily in the full retrieved sentence text saved in `normalized_evidence.csv`.
 - Integrate the concrete content of evidence sentences into review-style paragraphs. Do not merely say that a gene is associated with a trait or that sentences co-report gene and trait words.
-- Extract sentence-derived mechanism chains such as molecular identity, allele/mutation/loss-of-function language, expression or candidate-locus wording, pathway perturbation, hormone signaling, phenotype endpoints, breeding-use context, stress-growth balance, and developmental context.
-- For BPH/brown planthopper resistance reports, organize sentence evidence around resistance loci/QTLs, host-feeding phenotypes, defense signaling, candidate resistance genes, and breeding/introgression workflows. Do not force all BPH evidence into a single cloned-gene mechanism.
+- Derive section headings and mechanism topics from the current gene's RiceMind sentence evidence, not from a fixed gene/trait template.
+- Extract only the sentence-derived mechanism chains that actually appear in the current payload, such as molecular identity, allele/mutation/loss-of-function language, expression or candidate-locus wording, pathway perturbation, signaling context, phenotype endpoints, breeding-use context, stress-growth balance, developmental context, or other evidence-supported chains.
+- Do not hard-code BPH, sd1, GA, heading-date, drought, pest-resistance, or any other gene/trait-specific theme into the report template. Such themes may be discussed only when the current RiceMind evidence supports them.
 - Explain the biological logic connecting the gene, the sentence-derived mechanism chains, and major phenotypes, while making clear that the logic is organized from RiceMind text evidence.
 - Mention confidence tier, evidence density and trait labels only as audit context, not as the main content of the mechanism prose.
 - Cite PMID sources using bracket style after mechanism statements.
