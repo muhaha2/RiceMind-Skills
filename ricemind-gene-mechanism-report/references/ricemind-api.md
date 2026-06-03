@@ -138,6 +138,9 @@ Returned fields:
 - `sentence_evidence[]`
 - `sentence_evidence[].PMID`
 - `sentence_evidence[].year`
+- `sentence_evidence[].title`
+- `sentence_evidence[].journal`
+- `sentence_evidence[].doi`
 - `sentence_evidence[].sent_id`
 - `sentence_evidence[].text`
 
@@ -156,6 +159,8 @@ Returned fields:
 - `results[].PMID`
 - `results[].year`
 - `results[].title`
+- `results[].journal`
+- `results[].doi`
 - `results[].sent_id`
 - `results[].text`
 
@@ -227,4 +232,3 @@ If a reduced retrieval is necessary for runtime reasons, state it in Section 1 o
 ## Script Endpoint Map
 
 `scripts/build_gene_mechanism_report.py` already includes direct route defaults. Only provide `--endpoint-map` if the live service routes change.
-
