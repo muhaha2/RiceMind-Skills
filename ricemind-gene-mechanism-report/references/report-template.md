@@ -51,7 +51,7 @@ Required table:
 
 `API call summary`: show at most six functionally distinct API calls. Do not list all page-specific URLs. For repeated calls that only differ by `page`, aggregate them by endpoint, query function and page range. Tell the user that compact call summaries and raw returned data are stored in the payload JSON sidecar.
 
-## 2. 基因概貌与外部链接
+## 2. 基因基础身份与核心机制总览
 
 Data source: `/gene-profile/`.
 
@@ -67,6 +67,7 @@ Required content:
 - Functional explanation and trait class.
 - Chromosome, start, end, strand.
 - External platform links.
+- Basic molecular mechanism or consensus mechanism only when RiceMind profile annotations or sentence evidence support it. The report may synthesize from RiceMind sentences, but must not add external biology from memory.
 
 Required table:
 
@@ -74,7 +75,24 @@ Required table:
 
 Any value under `external_platforms.*`, especially `external_platforms.RAP-DB`, `external_platforms.Ensembl_Plants`, and `external_platforms.Gramene`, must be inserted as an actual Word hyperlink, not plain URL text.
 
-## 3. 全量 GTA 概貌
+## 3. 全量化句证输出与本体分布
+
+Data sources: `/traits-by-gene/`, `/search-by-trait-and-gene/`, `/search-by-gene/`.
+
+Purpose: give the user an evidence panorama before interpretation.
+
+Required content:
+
+- Total retrieved sentence evidence records.
+- Total unique PMIDs.
+- Evidence year span.
+- Ontology mapping distribution across trait records and sentence evidence.
+- Representative sentence evidence sampled by confidence tier, including tier, trait/ontology, evidence code/source, PMID/year, and a short sentence excerpt.
+- Explicit statement that representative sentences are examples only; the full evidence table is saved in `normalized_evidence.csv`.
+
+Do not paste the full evidence table into the DOCX body.
+
+## 4. 全量 GTA 概貌
 
 Data source: `/traits-by-gene/?confidence=All&onto_type=ALL`.
 
@@ -96,7 +114,7 @@ Required table:
 
 `Trait landscape summary`: show at most the top 20 trait rows ranked by confidence tier and support count. The complete trait landscape must be written to `normalized_traits.csv`; the DOCX should state this explicitly.
 
-## 4. 证据代码、来源与置信层级统计
+## 5. 证据代码、来源与置信层级统计
 
 Data source: `/traits-by-gene/` and sentence-evidence endpoints.
 
@@ -113,7 +131,7 @@ Required figures:
 - Evidence-code distribution.
 - Source database distribution.
 
-## 5. 机制证据综述
+## 6. 机制证据综述
 
 Data source: `/search-by-trait-and-gene/`, optionally `/sentence-context/`.
 
@@ -141,7 +159,32 @@ Citation format:
 
 `...[12345678, 23456789]`
 
-## 6. 文献趋势与 PMID 可追溯性
+## 7. 研究热点与年代变迁分析
+
+Data source: sentence evidence and article metadata.
+
+Required content:
+
+- Use RiceMind `year` metadata to split the evidence into chronological phases.
+- For each phase, report year range, sentence-evidence count, unique PMID count, phase-specific hotspot terms and major trait contexts.
+- Explain hotspot shifts as changes in literature attention, not necessarily changes in biological importance.
+- Use only terms and years extracted from RiceMind sentence evidence.
+
+## 8. 不一致或条件依赖的分子机理
+
+Data source: RiceMind sentence evidence.
+
+Required content:
+
+- Detect positive/negative directional wording in the same mechanism or phenotype context when available.
+- Report the context, positive-direction evidence count/PMIDs, negative-direction evidence count/PMIDs and a cautious synthesis.
+- Frame detected conflicts as potential context dependence unless RiceMind curated/experimental evidence supports a stronger conclusion.
+- Consider photoperiod, developmental stage, genetic background, stress intensity, tissue, allele type and evidence tier as possible explanations.
+- If no stable conflict pattern is detected, say so explicitly.
+
+Do not manufacture controversies from general knowledge or from the user's example.
+
+## 9. 二级文献计量与 PMID 可追溯性
 
 Data source: sentence evidence and article metadata.
 
@@ -150,13 +193,15 @@ Required content:
 - Publication-year distribution.
 - Unique PMID count.
 - Top PMID or article clusters by evidence count when useful.
+- Top journals when journal metadata is available.
 - Statement that literature frequency reflects publication attention, not necessarily biological importance.
+- Institution/geographic hotspots only if RiceMind payload includes affiliation or author-institution metadata. If absent, state that the metadata are unavailable and do not infer locations from memory.
 
 Required figure:
 
 - Publication-year bar chart.
 
-## 7. 品种共现与组学序列信息
+## 10. 品种共现与组学序列信息
 
 Data sources:
 
@@ -172,7 +217,7 @@ Required content:
 
 Do not over-interpret variety co-occurrence as a direct functional mechanism.
 
-## 8. 证据边界与解释限制
+## 11. 证据边界与解释限制
 
 Required content:
 

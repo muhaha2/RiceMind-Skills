@@ -1115,6 +1115,258 @@ def sequence_api_url_rows(bundle: Dict[str, Any], profile: Dict[str, Any], gene:
     return rows
 
 
+HOTSPOT_TERMS = [
+    "heading date",
+    "heading",
+    "flowering",
+    "photoperiod",
+    "long-day",
+    "short-day",
+    "circadian",
+    "Ehd1",
+    "Hd3a",
+    "RFT1",
+    "grain number",
+    "grain yield",
+    "yield",
+    "plant height",
+    "panicle",
+    "tiller",
+    "QTL",
+    "allele",
+    "natural variation",
+    "domestication",
+    "adaptation",
+    "drought",
+    "salt",
+    "nitrogen",
+    "ABA",
+    "stress",
+    "transcriptome",
+    "scRNA",
+    "single-cell",
+    "brown planthopper",
+    "BPH",
+    "resistance",
+    "feeding",
+    "defense",
+    "introgression",
+    "pyramiding",
+    "marker-assisted",
+    "GA",
+    "gibberellin",
+    "SLR1",
+    "DELLA",
+    "lodging",
+    "semi-dwarf",
+]
+
+CONFLICT_CONTEXTS = [
+    ("Heading/flowering time", "抽穗期开花", ["heading", "flowering", "floral", "photoperiod", "long-day", "short-day"]),
+    ("Yield and grain traits", "产量和穗粒性状", ["yield", "grain", "panicle", "tiller", "spikelet", "harvest index"]),
+    ("Plant height and growth", "株高和生长", ["plant height", "height", "growth", "dwarf", "semi-dwarf", "elongation"]),
+    ("Drought and water deficit", "干旱和水分亏缺", ["drought", "water deficit", "wilting", "dehydration"]),
+    ("Salt/osmotic stress", "盐和渗透胁迫", ["salt", "salinity", "nacl", "osmotic"]),
+    ("Pest/pathogen resistance", "虫害病害抗性", ["brown planthopper", "bph", "pest", "insect", "pathogen", "disease", "resistance"]),
+    ("Expression/regulatory effect", "表达和调控方向", ["expression", "transcription", "up-regulated", "down-regulated", "repress", "activate"]),
+]
+
+POSITIVE_DIRECTION_TERMS = [
+    "promote",
+    "promotes",
+    "enhance",
+    "enhanced",
+    "increase",
+    "increased",
+    "improve",
+    "improved",
+    "activate",
+    "activated",
+    "up-regulated",
+    "upregulated",
+    "positive regulator",
+    "confers resistance",
+    "resistant",
+    "tolerant",
+    "higher",
+    "more",
+]
+
+NEGATIVE_DIRECTION_TERMS = [
+    "inhibit",
+    "inhibited",
+    "repress",
+    "repressed",
+    "suppress",
+    "suppressed",
+    "decrease",
+    "decreased",
+    "reduce",
+    "reduced",
+    "down-regulated",
+    "downregulated",
+    "negative regulator",
+    "susceptible",
+    "hypersensitive",
+    "delay",
+    "delayed",
+    "lower",
+    "less",
+]
+
+
+def evidence_summary_rows(traits: List[Dict[str, str]], evidence: List[Dict[str, str]]) -> List[List[str]]:
+    return [
+        ["Metric", "Value"],
+        ["Trait associations", str(len(traits))],
+        ["Sentence evidence records", str(len(evidence))],
+        ["Unique PMIDs", str(len({row.get("pmid", "") for row in evidence if row.get("pmid", "")}))],
+        ["Ontology types in traits", str(len({row.get("ontology_type", "") for row in traits if row.get("ontology_type", "")}))],
+        ["Evidence years", year_span_text(evidence)],
+    ]
+
+
+def year_span_text(rows: List[Dict[str, str]]) -> str:
+    years = sorted({parse_int(row.get("year", "")) for row in rows if parse_int(row.get("year", "")) > 0})
+    if not years:
+        return "unavailable"
+    return f"{years[0]}-{years[-1]}"
+
+
+def ontology_distribution_rows(traits: List[Dict[str, str]], evidence: List[Dict[str, str]]) -> List[List[str]]:
+    trait_counts = Counter(row.get("ontology_type", "") or "Unspecified" for row in traits)
+    evidence_counts = Counter(row.get("ontology_type", "") or "Unspecified" for row in evidence)
+    ontologies = sorted(set(trait_counts) | set(evidence_counts), key=lambda key: (-(trait_counts[key] + evidence_counts[key]), key))
+    rows = [["Ontology", "Trait records", "Evidence records", "Top trait examples"]]
+    for ontology in ontologies[:12]:
+        examples = []
+        for row in traits:
+            if (row.get("ontology_type", "") or "Unspecified") == ontology and row.get("trait", "") not in examples:
+                examples.append(row.get("trait", ""))
+            if len(examples) >= 4:
+                break
+        rows.append([ontology, str(trait_counts[ontology]), str(evidence_counts[ontology]), truncate("; ".join(examples), 160)])
+    return rows
+
+
+def representative_sentence_rows(evidence: List[Dict[str, str]], per_tier: int = 2) -> List[List[str]]:
+    rows = [["Tier", "Trait / Ontology", "Evidence code / Source", "PMID / Year", "Representative RiceMind sentence"]]
+    tier_order = ["High", "Medium", "Low", "Unspecified"]
+    seen = set()
+    for tier in tier_order:
+        candidates = [row for row in evidence if (row.get("confidence", "") or "Unspecified") == tier and row.get("sentence", "")]
+        candidates.sort(key=lambda row: (0 if row.get("pmid", "") else 1, -len(row.get("sentence", "")), row.get("trait", "")))
+        added = 0
+        for row in candidates:
+            key = (tier, row.get("pmid", ""), row.get("sentence_id", ""), row.get("sentence", "")[:80])
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append([
+                tier,
+                " ".join(x for x in [truncate(row.get("trait", ""), 70), row.get("ontology_id", "")] if x),
+                " / ".join(x for x in [truncate(row.get("evidence_code", ""), 60), truncate(row.get("source_db", ""), 60)] if x),
+                " / ".join(x for x in [row.get("pmid", ""), row.get("year", "")] if x),
+                truncate(row.get("sentence", ""), 260),
+            ])
+            added += 1
+            if added >= per_tier:
+                break
+    return rows
+
+
+def phase_ranges(years: List[int]) -> List[Tuple[str, int, int]]:
+    unique_years = sorted(set(years))
+    if not unique_years:
+        return []
+    if len(unique_years) <= 3:
+        return [(f"Phase {idx + 1}", year, year) for idx, year in enumerate(unique_years)]
+    cut1 = unique_years[max(0, len(unique_years) // 3 - 1)]
+    cut2 = unique_years[max(0, (2 * len(unique_years)) // 3 - 1)]
+    return [
+        ("Phase I", unique_years[0], cut1),
+        ("Phase II", cut1 + 1, cut2),
+        ("Phase III", cut2 + 1, unique_years[-1]),
+    ]
+
+
+def temporal_hotspot_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[List[str]]:
+    years = [parse_int(row.get("year", "")) for row in evidence if parse_int(row.get("year", "")) > 0]
+    rows = [["Phase", "Years", "Evidence records", "Unique PMIDs", "Hotspot terms", "Interpretation"]]
+    for phase, start, end in phase_ranges(years):
+        phase_rows = [row for row in evidence if start <= parse_int(row.get("year", "")) <= end]
+        if not phase_rows:
+            continue
+        terms = observed_terms(phase_rows, HOTSPOT_TERMS, 8)
+        top_traits = [trait for trait, _ in Counter(row.get("trait", "") for row in phase_rows if row.get("trait", "")).most_common(5)]
+        interpretation = zh(
+            is_zh,
+            f"热点集中在 {join_cn(terms) if terms else '可追溯句证'}；相关 trait/语境包括 {join_cn(top_traits) if top_traits else '未明确'}。",
+            f"Hotspots center on {join_en(terms) if terms else 'traceable evidence'}; associated traits/contexts include {join_en(top_traits) if top_traits else 'unspecified'}.",
+        )
+        rows.append([
+            phase,
+            f"{start}-{end}",
+            str(len(phase_rows)),
+            str(len({row.get("pmid", "") for row in phase_rows if row.get("pmid", "")})),
+            truncate(join_cn(terms) if is_zh else join_en(terms), 160),
+            truncate(interpretation, 240),
+        ])
+    return rows
+
+
+def rows_with_terms(rows: List[Dict[str, str]], terms: Sequence[str]) -> List[Dict[str, str]]:
+    lowered = [term.lower() for term in terms]
+    return [row for row in rows if any(term in f"{row.get('trait', '')} {row.get('sentence', '')}".lower() for term in lowered)]
+
+
+def conflict_rows(evidence: List[Dict[str, str]], is_zh: bool) -> List[List[str]]:
+    rows = [["Context", "Positive-direction evidence", "Negative-direction evidence", "Synthesis / Caveat"]]
+    for context_en, context_cn, context_terms in CONFLICT_CONTEXTS:
+        context_rows = rows_with_terms(evidence, context_terms)
+        if len(context_rows) < 3:
+            continue
+        positive_rows = rows_with_terms(context_rows, POSITIVE_DIRECTION_TERMS)
+        negative_rows = rows_with_terms(context_rows, NEGATIVE_DIRECTION_TERMS)
+        if not positive_rows or not negative_rows:
+            continue
+        positive_cite = pmid_citation(collect_pmids(positive_rows, 4))
+        negative_cite = pmid_citation(collect_pmids(negative_rows, 4))
+        caveat = zh(
+            is_zh,
+            "RiceMind 检测到同一语境下存在正向和负向方向词；这通常提示光周期、发育阶段、遗传背景、胁迫强度或证据等级差异，而不是简单的互相否定。",
+            "RiceMind detected both positive and negative directional terms in the same context; this usually indicates photoperiod, developmental stage, genetic background, stress intensity or evidence-tier dependence rather than simple mutual contradiction.",
+        )
+        rows.append([
+            context_cn if is_zh else context_en,
+            f"n={len(positive_rows)} {positive_cite}",
+            f"n={len(negative_rows)} {negative_cite}",
+            caveat,
+        ])
+    return rows if len(rows) > 1 else []
+
+
+def bibliometric_rows(evidence: List[Dict[str, str]]) -> Tuple[List[List[str]], List[List[str]]]:
+    journal_counter = Counter(row.get("journal", "").strip() for row in evidence if row.get("journal", "").strip())
+    journal_rows = [["Journal", "Evidence records"]]
+    for journal, count in journal_counter.most_common(12):
+        journal_rows.append([truncate(journal, 120), str(count)])
+
+    pmid_counter = Counter(row.get("pmid", "").strip() for row in evidence if row.get("pmid", "").strip())
+    title_by_pmid: Dict[str, str] = {}
+    year_by_pmid: Dict[str, str] = {}
+    for row in evidence:
+        pmid = row.get("pmid", "").strip()
+        if not pmid:
+            continue
+        title_by_pmid.setdefault(pmid, row.get("title", ""))
+        year_by_pmid.setdefault(pmid, row.get("year", ""))
+    pmid_rows = [["PMID", "Year", "Evidence records", "Title"]]
+    for pmid, count in pmid_counter.most_common(12):
+        pmid_rows.append([pmid, year_by_pmid.get(pmid, ""), str(count), truncate(title_by_pmid.get(pmid, ""), 180)])
+    return (journal_rows if len(journal_rows) > 1 else [], pmid_rows if len(pmid_rows) > 1 else [])
+
+
 def row_limit(rows: List[Dict[str, str]], max_rows: int) -> List[Dict[str, str]]:
     if max_rows and max_rows > 0:
         return rows[:max_rows]
@@ -2202,7 +2454,23 @@ def build_docx(
     else:
         doc.add_paragraph(zh(is_zh, "未在输入数据中找到 gene-profile 记录。", "No gene-profile record was found in the input data."))
 
-    doc.add_heading(zh(is_zh, "3. 全量 GTA 概貌", "3. Full GTA Landscape"), 1)
+    doc.add_heading(zh(is_zh, "3. 全量句证输出与本体分布", "3. Evidence Distribution and Sentence Provenance"), 1)
+    add_table(doc, evidence_summary_rows(traits, evidence))
+    if traits or evidence:
+        doc.add_heading(zh(is_zh, "本体维度分布", "Ontology Mapping Distribution"), 2)
+        add_table(doc, ontology_distribution_rows(traits, evidence))
+    if evidence:
+        doc.add_heading(zh(is_zh, "代表性句子证据", "Representative Sentence Evidence"), 2)
+        doc.add_paragraph(
+            zh(
+                is_zh,
+                "下表按置信层级抽取代表性 RiceMind 句子证据，仅用于展示证据形态；全量句证保存在 normalized_evidence.csv。",
+                "The table samples representative RiceMind sentence evidence by confidence tier only to show evidence shape; full sentence evidence is preserved in normalized_evidence.csv.",
+            )
+        )
+        add_table(doc, representative_sentence_rows(evidence))
+
+    doc.add_heading(zh(is_zh, "4. 全量 GTA 概貌", "4. Full GTA Landscape"), 1)
     add_picture_if_exists(doc, fig_paths.get("confidence"), zh(is_zh, "图 1. RiceMind confidence tier 分布。", "Figure 1. RiceMind confidence-tier distribution."))
     add_picture_if_exists(doc, fig_paths.get("ontology"), zh(is_zh, "图 2. Ontology 类型分布。", "Figure 2. Ontology type distribution."))
     add_picture_if_exists(doc, fig_paths.get("top_traits"), zh(is_zh, "图 3. 按文献支持数排序的主要 trait。", "Figure 3. Top traits ranked by supporting article count."))
@@ -2232,7 +2500,7 @@ def build_docx(
             )
         )
 
-    doc.add_heading(zh(is_zh, "4. 证据代码、来源与置信层级统计", "4. Evidence Codes, Sources and Confidence Statistics"), 1)
+    doc.add_heading(zh(is_zh, "5. 证据代码、来源与置信层级统计", "5. Evidence Codes, Sources and Confidence Statistics"), 1)
     add_picture_if_exists(doc, fig_paths.get("evidence_code"), zh(is_zh, "图 4. Evidence code 分布。", "Figure 4. Evidence-code distribution."))
     add_picture_if_exists(doc, fig_paths.get("source"), zh(is_zh, "图 5. RiceMind 来源数据库分布。", "Figure 5. RiceMind source database distribution."))
     summary_rows = [["Statistic", "Value"]]
@@ -2245,15 +2513,64 @@ def build_docx(
     ])
     add_table(doc, summary_rows)
 
-    doc.add_heading(zh(is_zh, "5. RiceMind 句子证据驱动的机制综述", "5. RiceMind Sentence-Evidence-Driven Mechanism Synthesis"), 1)
+    doc.add_heading(zh(is_zh, "6. RiceMind 句子证据驱动的机制综述", "6. RiceMind Sentence-Evidence-Driven Mechanism Synthesis"), 1)
     add_mechanism_synthesis(doc, gene, traits, evidence, is_zh)
 
-    doc.add_heading(zh(is_zh, "6. 文献趋势与 PMID 可追溯性", "6. Literature Trend and PMID Traceability"), 1)
+    doc.add_heading(zh(is_zh, "7. 研究热点与年代变迁分析", "7. Temporal Analysis and Hotspot Evolution"), 1)
+    temporal_rows = temporal_hotspot_rows(evidence, is_zh)
+    if len(temporal_rows) > 1:
+        add_table(doc, temporal_rows)
+        doc.add_paragraph(
+            zh(
+                is_zh,
+                "阶段划分由 RiceMind 句证年份自动分箱得到；热点词来自各阶段句子文本，因此反映研究关注度变化，不等同于生物学重要性排序。",
+                "Phase boundaries are computed from RiceMind sentence years; hotspot terms come from phase-specific sentence text and therefore reflect attention shifts rather than biological-importance ranking.",
+            )
+        )
+    else:
+        doc.add_paragraph(zh(is_zh, "输入证据缺少年份信息，无法生成热点阶段分析。", "No usable publication years were available for hotspot phase analysis."))
+
+    doc.add_heading(zh(is_zh, "8. 不一致或条件依赖的机制线索", "8. Conflicting or Context-Dependent Mechanistic Signals"), 1)
+    detected_conflicts = conflict_rows(evidence, is_zh)
+    if detected_conflicts:
+        add_table(doc, detected_conflicts)
+    else:
+        doc.add_paragraph(
+            zh(
+                is_zh,
+                "未在当前 RiceMind 句子证据中检测到足够强的正负方向词共存模式。没有检测到冲突并不代表文献完全一致，只表示本次规则化扫描未发现可稳定报告的条件依赖线索。",
+                "No sufficiently strong positive/negative directional co-occurrence pattern was detected in the current RiceMind sentence evidence. Absence of detected conflict does not prove full literature agreement; it only means this rule-based scan did not find a stable reportable context-dependence signal.",
+            )
+        )
+
+    doc.add_heading(zh(is_zh, "9. 二级文献计量与 PMID 可追溯性", "9. Secondary Bibliometrics and PMID Traceability"), 1)
     add_picture_if_exists(doc, fig_paths.get("years"), zh(is_zh, "图 6. 句子级证据的发表年份分布。", "Figure 6. Publication-year distribution of sentence-level evidence."))
     if not fig_paths.get("years"):
         doc.add_paragraph(zh(is_zh, "输入证据缺少可用发表年份，未生成年度趋势图。", "No usable publication years were available for a trend chart."))
+    journal_rows, pmid_rows = bibliometric_rows(evidence)
+    if journal_rows:
+        doc.add_heading(zh(is_zh, "Top 发表刊物", "Top Journals"), 2)
+        add_table(doc, journal_rows)
+    else:
+        doc.add_paragraph(
+            zh(
+                is_zh,
+                "当前 RiceMind 句证未提供可稳定统计的 journal 字段，因此不输出 Top 期刊排名。",
+                "The current RiceMind sentence evidence does not provide stable journal metadata, so top-journal ranking is not reported.",
+            )
+        )
+    if pmid_rows:
+        doc.add_heading(zh(is_zh, "高频 PMID / 文献簇", "High-Frequency PMID / Article Clusters"), 2)
+        add_table(doc, pmid_rows)
+    doc.add_paragraph(
+        zh(
+            is_zh,
+            "机构地理热点只有在 RiceMind 返回通讯作者单位或 affiliation 元数据时才可报告；若 payload 中没有该字段，报告不得凭常识或外部记忆补写机构地点。",
+            "Institutional geography is reported only when RiceMind returns corresponding-author or affiliation metadata; if absent from the payload, the report must not fill locations from general knowledge or memory.",
+        )
+    )
 
-    doc.add_heading(zh(is_zh, "7. 品种共现与组学序列信息", "7. Variety Co-Occurrence and Omics Sequence Information"), 1)
+    doc.add_heading(zh(is_zh, "10. 品种共现与组学序列信息", "10. Variety Co-Occurrence and Omics Sequence Information"), 1)
     if varieties:
         variety_rows = [["Variety"]]
         for row in varieties:
@@ -2274,7 +2591,7 @@ def build_docx(
     elif bundle.get("omics_sequence_error"):
         doc.add_paragraph(zh(is_zh, f"组学序列接口未返回可用结果：{bundle['omics_sequence_error']}", f"Omics sequence endpoint did not return usable data: {bundle['omics_sequence_error']}"))
 
-    doc.add_heading(zh(is_zh, "8. 证据边界与解释限制", "8. Evidence Boundaries and Interpretation Limits"), 1)
+    doc.add_heading(zh(is_zh, "11. 证据边界与解释限制", "11. Evidence Boundaries and Interpretation Limits"), 1)
     doc.add_paragraph(
         zh(
             is_zh,
