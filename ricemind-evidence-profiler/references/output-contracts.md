@@ -40,6 +40,10 @@ Apply these rules:
 - Keep DOCX, Markdown, PDF, or other primary user-facing reports in the output directory.
 - Put API payloads, normalized CSV/JSON files, mechanism evidence bundles, network tables, intermediate data, and figures inside `{report_stem}_data/`.
 - Put generated plots and images inside `{report_stem}_data/figures/`, unless the user explicitly requests another location.
+- For a formal report, figures are required whenever at least one recommended chart has usable observations. "Optional" means data-dependent, not that visualization may be skipped when suitable data exist.
+- Generate trait, breeding-objective, ranking, and bibliometric figures with `scripts/build_report_figures.py` after final normalized sidecars are available.
+- For Markdown/PDF workflows, run the script with `--markdown {report}.md` before converting Markdown to PDF. For an existing DOCX, use `--docx {report}.docx`.
+- The report must display or reference every retained generated figure. Do not leave images only in the data directory without connecting them to the report.
 - Use one canonical report stem. Do not scatter sidecars beside the report or create `_final`, `_updated`, or duplicate data directories.
 - For a data-only request, create one clearly named data directory and place all non-empty deliverables inside it; do not create an empty report placeholder.
 - If the user explicitly supplies an output layout, follow it while retaining report/data separation where possible.
@@ -77,6 +81,29 @@ If an endpoint fails or returns no usable data, state the endpoint, query, error
 | DOCX report | User requests a formal report | Fixed or task-specific template, figures, sidecar files |
 | CSV/JSON bundle | User asks for complete data or full traceability | Normalized CSV/JSON with compact explanation |
 | Network-style summary | User asks relationships among genes, traits, varieties | Nodes, edges, evidence counts, PMIDs, confidence/source summaries |
+
+## Visualization Workflow
+
+Run:
+
+```text
+python scripts/build_report_figures.py --data-dir {report_stem}_data --markdown {report_stem}.md
+```
+
+The script detects available normalized sidecars and creates only figures supported by non-empty data. Depending on the task and returned columns, it preserves the legacy visualization set and may generate:
+
+- publication-year distribution
+- top candidates by Sentence Evidence count
+- top candidates by independent PMID count
+- journal distribution
+- evidence-code distribution
+- source-database distribution
+- candidate evidence or Tier 1 article support
+- objective-context PMID support
+- objective-support versus yield/growth caution signals
+- Tier 1 trait distribution
+
+For single-gene DOCX reports, `scripts/build_gene_report.py` retains its integrated confidence, ontology, top-trait, evidence-code, source, and publication-year figures.
 
 ## Gene Full Report
 

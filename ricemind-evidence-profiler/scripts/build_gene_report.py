@@ -1832,6 +1832,7 @@ def build_docx(
     if journal_rows:
         doc.add_heading(zh(is_zh, "Top 发表刊物", "Top Journals"), 2)
         add_table(doc, journal_rows)
+        add_picture_if_exists(doc, fig_paths.get("journal"), zh(is_zh, "图 7. 句子级证据的期刊分布。", "Figure 7. Journal distribution of sentence-level evidence."))
     else:
         doc.add_paragraph(
             zh(
@@ -2010,6 +2011,7 @@ def main() -> int:
         "evidence_code": fig_dir / "evidence_code_distribution.png",
         "source": fig_dir / "source_distribution.png",
         "years": fig_dir / "publication_year_trend.png",
+        "journal": fig_dir / "journal_distribution.png",
     }
     for figure_path in figure_targets.values():
         remove_output_file(figure_path)
@@ -2020,6 +2022,7 @@ def main() -> int:
         "evidence_code": plot_counter(split_counter(traits + evidence, "evidence_code"), "Evidence-code distribution", figure_targets["evidence_code"]),
         "source": plot_counter(split_counter(traits + evidence, "source_db"), "Source database distribution", figure_targets["source"]),
         "years": plot_years((row["year"] for row in evidence), figure_targets["years"]),
+        "journal": plot_counter(Counter(row["journal"] for row in evidence if row["journal"]), "Journal distribution", figure_targets["journal"]),
     }
 
     if not args.sidecars_only:

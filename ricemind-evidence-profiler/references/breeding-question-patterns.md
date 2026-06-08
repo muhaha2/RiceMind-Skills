@@ -69,3 +69,15 @@ For large analyses, place non-empty sidecars in the sibling `{report_stem}_data/
 - evidence-network edge CSV
 
 Do not retain a sidecar for a failed query or an empty per-trait result.
+
+## Figures
+
+For a formal breeding-objective report, run `scripts/build_report_figures.py` after the merged ranking and evidence sidecars are complete. Generate every non-empty data-supported figure, especially:
+
+- candidate targets by Tier 1 or objective-specific article support
+- candidate targets by objective-context independent PMID support
+- objective-support trait count versus yield/growth or other user-specified caution signals
+- Tier 1 trait distribution across candidates
+- publication-year, journal, evidence-code, and source distributions when those fields are available
+
+Use the user's actual objective and tradeoff columns; do not hard-code salinity or yield labels for unrelated breeding questions. Put images in `{report_stem}_data/figures/` and insert them into the final report.

@@ -9,6 +9,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from build_report_figures import build_trait_figures, update_markdown
 from normalize_ricemind_payload import candidate_gene_rows, find_sentence_rows, write_csv
 from ricemind_api_client import DEFAULT_BASE_URL, RiceMindClient
 
@@ -106,6 +107,14 @@ def main() -> None:
     write_csv(data_dir / f"{report_path.stem}_sentence_evidence.csv", sentences)
     write_csv(data_dir / f"{report_path.stem}_candidate_genes.csv", candidates)
     write_markdown(report_path, args.trait, payload, sentences, candidates, retrieval_error)
+    figures = build_trait_figures(sentences, candidates, data_dir / "figures")
+    update_markdown(report_path, figures)
+    figures_dir = data_dir / "figures"
+    if figures_dir.is_dir():
+        try:
+            figures_dir.rmdir()
+        except OSError:
+            pass
     if data_dir.is_dir():
         try:
             data_dir.rmdir()

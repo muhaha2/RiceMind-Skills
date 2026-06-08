@@ -71,9 +71,11 @@ Use a single skill with modular internal layers:
 5. Produce the output.
    - Read `references/output-contracts.md`.
    - Apply its global mechanism-writing, empty-artifact cleanup, and report/data directory rules to every module.
+   - Preserve the legacy RiceMind visualization layer. For formal trait, breeding-objective, candidate-ranking, bibliometric, or multi-gene reports, run `scripts/build_report_figures.py` after normalized sidecars are complete and before converting Markdown to PDF or DOCX. Generate every non-empty recommended figure supported by the retrieved data and place it in `{report_stem}_data/figures/`.
+   - Use `--markdown {report}.md` to insert the generated figure section before PDF conversion, or `--docx {report}.docx` to append figures to an existing DOCX. Do not leave a populated figures directory disconnected from the user-facing report.
    - For single-gene full DOCX reports, use the mandatory two-stage workflow in `references/gene-report-template.md`: first retrieve sidecars and the mechanism brief, then write a personalized PMID-backed mechanism Markdown from the complete Sentence Evidence, and only then build the DOCX with `--mechanism-md`.
    - Never use compact evidence-topic summaries as a substitute for the final mechanism synthesis.
-   - For trait-centered candidate reports, use `scripts/build_trait_report.py` and `references/trait-report-template.md`.
+   - For trait-centered candidate reports, use `scripts/build_trait_report.py` and `references/trait-report-template.md`; the builder automatically generates and links all supported trait figures.
    - For breeding-objective questions, use `references/breeding-question-patterns.md`; combine trait scans and evidence ranking.
    - For evidence networks, use `scripts/build_evidence_network.py`.
 
@@ -91,6 +93,7 @@ Use a single skill with modular internal layers:
 - `scripts/normalize_ricemind_payload.py`: normalize RiceMind JSON into sentence, trait, candidate, and article tables.
 - `scripts/build_gene_report.py`: integrated single-gene full DOCX report builder.
 - `scripts/build_trait_report.py`: trait-centered evidence and candidate ranking builder.
+- `scripts/build_report_figures.py`: reusable figure generator and Markdown/DOCX figure inserter for trait, breeding, ranking, and bibliometric sidecars.
 - `scripts/build_evidence_network.py`: evidence-network edge/node exporter.
 
 ## Extension Rule

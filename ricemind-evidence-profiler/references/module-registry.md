@@ -7,11 +7,11 @@ This registry keeps the integrated skill modular. Every RiceMind capability shou
 | Module | Purpose | Template/reference | Script |
 |---|---|---|---|
 | `gene_report` | Full single-gene mechanism and evidence DOCX report | `gene-report-template.md` | `build_gene_report.py` |
-| `trait_report` | Trait-centered evidence panorama and candidate gene ranking | `trait-report-template.md` | `build_trait_report.py` |
+| `trait_report` | Trait-centered evidence panorama and candidate gene ranking | `trait-report-template.md` | `build_trait_report.py`, `build_report_figures.py` |
 | `gene_trait_audit` | Focused evidence assessment for a gene-trait pair | `output-contracts.md` | `ricemind_api_client.py`, `normalize_ricemind_payload.py` |
-| `breeding_objective` | Decompose breeding goals into trait scans and candidate prioritization | `breeding-question-patterns.md` | `build_trait_report.py`, `build_evidence_network.py` |
+| `breeding_objective` | Decompose breeding goals into trait scans and candidate prioritization | `breeding-question-patterns.md` | `build_trait_report.py`, `build_report_figures.py`, `build_evidence_network.py` |
 | `variety_profile` | Variety-gene-trait co-occurrence profile | `output-contracts.md` | `ricemind_api_client.py`, `build_evidence_network.py` |
-| `literature_trend` | Year, journal, PMID, and hotspot-term analysis | `output-contracts.md` | `normalize_ricemind_payload.py` |
+| `literature_trend` | Year, journal, PMID, and hotspot-term analysis | `output-contracts.md` | `normalize_ricemind_payload.py`, `build_report_figures.py` |
 | `evidence_network` | Node/edge tables for gene-trait-variety evidence | `output-contracts.md` | `build_evidence_network.py` |
 | `data_export` | Complete paginated API payload and normalized tables | `ricemind-api.md` | `ricemind_api_client.py`, `normalize_ricemind_payload.py` |
 
