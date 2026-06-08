@@ -188,7 +188,7 @@ class ReportFigureTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
-    def test_breeding_sidecars_restore_legacy_figure_types(self):
+    def test_auto_figures_are_task_neutral_and_data_driven(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             data_dir = root / "report_data"
@@ -197,27 +197,39 @@ class ReportFigureTests(unittest.TestCase):
                 [
                     {
                         "target": "GeneA",
-                        "tier1_direct_salt_article_support": "20",
-                        "tier1_direct_salt_trait_count": "3",
-                        "tier1_ion_homeostasis_trait_count": "4",
-                        "tier1_yield_or_growth_trait_count": "2",
-                        "salt_sentence_unique_pmids": "8",
+                        "score": "20",
+                        "unique_pmids": "8",
                     },
                     {
                         "target": "GeneB",
-                        "tier1_direct_salt_article_support": "10",
-                        "tier1_direct_salt_trait_count": "2",
-                        "tier1_ion_homeostasis_trait_count": "1",
-                        "tier1_yield_or_growth_trait_count": "5",
-                        "salt_sentence_unique_pmids": "4",
+                        "score": "10",
+                        "unique_pmids": "4",
                     },
                 ],
             )
             self.write_rows(
                 data_dir / "report_sentence_evidence.csv",
                 [
-                    {"target": "GeneA", "PMID": "1", "year": "2020", "journal": "Journal A", "sentence": "Evidence."},
-                    {"target": "GeneB", "PMID": "2", "year": "2021", "journal": "Journal B", "sentence": "Evidence."},
+                    {
+                        "target": "GeneA",
+                        "PMID": "1",
+                        "year": "2020",
+                        "journal": "Journal A",
+                        "evidence_codes": "EXP;IDA",
+                        "sources": "Oryzabase;RiceMind_NLP",
+                        "confidence": "Tier 1",
+                        "sentence": "Evidence.",
+                    },
+                    {
+                        "target": "GeneB",
+                        "PMID": "2",
+                        "year": "2021",
+                        "journal": "Journal B",
+                        "evidence_codes": "IEA",
+                        "sources": "Ensembl",
+                        "confidence": "Tier 2",
+                        "sentence": "Evidence.",
+                    },
                 ],
             )
             self.write_rows(
@@ -231,31 +243,118 @@ class ReportFigureTests(unittest.TestCase):
             figures = build_figures_from_data_dir(data_dir)
             names = {Path(item["path"]).name for item in figures}
 
-            self.assertIn("candidate_evidence_support.png", names)
-            self.assertIn("candidate_context_pmids.png", names)
-            self.assertIn("objective_vs_yield_growth_trait_counts.png", names)
+            self.assertIn("candidate_score.png", names)
+            self.assertIn("candidate_unique_pmids.png", names)
             self.assertIn("publication_year_distribution.png", names)
             self.assertIn("journal_distribution.png", names)
-            self.assertIn("tier1_trait_distribution.png", names)
+            self.assertIn("evidence_code_distribution.png", names)
+            self.assertIn("source_distribution.png", names)
+            self.assertIn("confidence_distribution.png", names)
+            self.assertIn("trait_distribution.png", names)
+            self.assertFalse(any("salt" in name or "yield" in name for name in names))
             self.assertTrue(all(Path(item["path"]).stat().st_size > 0 for item in figures))
 
-    def test_markdown_figure_section_is_idempotent(self):
+    def test_markdown_figures_use_personalized_sections_and_report_safe_size(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             report = root / "report.md"
             figure = root / "report_data" / "figures" / "example.png"
             figure.parent.mkdir(parents=True)
             figure.write_bytes(b"png")
-            report.write_text("# Report\n", encoding="utf-8")
-            figures = [{"path": str(figure), "caption": "Example evidence figure."}]
+            report.write_text(
+                "# 个性化报告\n\n"
+                "## 二、证据检索与筛选\n\n检索说明。\n\n"
+                "## 三、优先靶点\n\n候选分析。\n\n"
+                "## 四、机制与权衡\n\n机制分析。\n",
+                encoding="utf-8",
+            )
+            figures = [
+                {
+                    "id": "candidate_comparison",
+                    "path": str(figure),
+                    "caption": "比较当前问题下候选靶点的独立文献支持。",
+                    "section": "三、优先靶点",
+                    "subsection": "候选靶点的证据比较",
+                    "placement": "after_heading",
+                    "width_percent": 78,
+                    "max_height_inches": 4.8,
+                }
+            ]
 
             update_markdown(report, figures)
             update_markdown(report, figures)
             text = report.read_text(encoding="utf-8")
 
-            self.assertEqual(text.count("<!-- RICEMIND_FIGURES_START -->"), 1)
-            self.assertEqual(text.count("![Example evidence figure.]"), 1)
+            self.assertEqual(text.count("RICEMIND_FIGURE_BLOCK:candidate_comparison:START"), 1)
+            self.assertEqual(text.count("候选靶点的证据比较"), 1)
+            self.assertNotIn("Evidence Figures", text)
+            self.assertIn("width: 78%", text)
+            self.assertIn("max-height: 4.8in", text)
+            self.assertIn("page-break-inside: avoid", text)
+            self.assertIn('class="ricemind-figure-heading"', text)
+            self.assertIn('class="ricemind-figure-group"', text)
+            self.assertIn("page-break-before: avoid", text)
             self.assertIn("report_data/figures/example.png", text)
+            self.assertLess(text.index(">候选靶点的证据比较</h3>"), text.index("## 四、机制与权衡"))
+
+    def test_personalized_plan_supports_multiple_analytical_views(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "report_data"
+            self.write_rows(
+                data_dir / "analysis.csv",
+                [
+                    {"target": "GeneA", "objective_support": "12", "background_support": "5", "score": "8.5", "trait": "Trait 1"},
+                    {"target": "GeneA", "objective_support": "12", "background_support": "5", "score": "8.5", "trait": "Trait 2"},
+                    {"target": "GeneB", "objective_support": "7", "background_support": "9", "score": "6.0", "trait": "Trait 1"},
+                ],
+            )
+            plan = {
+                "language": "en",
+                "figures": [
+                    {
+                        "id": "criteria_comparison",
+                        "type": "grouped_bar",
+                        "source": "analysis.csv",
+                        "category": "target",
+                        "values": ["objective_support", "background_support"],
+                    },
+                    {
+                        "id": "tradeoff_map",
+                        "type": "scatter",
+                        "source": "analysis.csv",
+                        "x": "objective_support",
+                        "y": "background_support",
+                        "label": "target",
+                    },
+                    {
+                        "id": "score_distribution",
+                        "type": "histogram",
+                        "source": "analysis.csv",
+                        "value": "score",
+                    },
+                    {
+                        "id": "target_trait_matrix",
+                        "type": "heatmap",
+                        "source": "analysis.csv",
+                        "row": "target",
+                        "column": "trait",
+                    },
+                ],
+            }
+
+            figures = build_figures_from_data_dir(data_dir, plan=plan)
+            names = {Path(item["path"]).name for item in figures}
+
+            self.assertEqual(
+                names,
+                {
+                    "criteria_comparison.png",
+                    "tradeoff_map.png",
+                    "score_distribution.png",
+                    "target_trait_matrix.png",
+                },
+            )
 
     def test_trait_builder_generates_and_links_supported_figures(self):
         payload = {
@@ -301,10 +400,14 @@ class ReportFigureTests(unittest.TestCase):
             report = root / "salt_trait_evidence_summary.md"
             fig_dir = root / "salt_trait_evidence_summary_data" / "figures"
             text = report.read_text(encoding="utf-8")
-            self.assertIn("## Evidence Figures", text)
+            self.assertNotIn("## Evidence Figures", text)
+            self.assertIn('<figure class="ricemind-figure"', text)
+            self.assertIn("max-width: 7.0in", text)
+            self.assertIn("## Top Candidate Genes", text)
+            self.assertLess(text.index("Candidate evidence comparison"), text.index("## Evidence Boundary"))
             self.assertTrue((fig_dir / "publication_year_distribution.png").is_file())
-            self.assertTrue((fig_dir / "top_candidate_genes_by_sentence_count.png").is_file())
-            self.assertTrue((fig_dir / "top_candidate_genes_by_unique_pmids.png").is_file())
+            self.assertTrue((fig_dir / "candidate_sentence_count.png").is_file())
+            self.assertTrue((fig_dir / "candidate_unique_pmids.png").is_file())
             self.assertTrue((fig_dir / "journal_distribution.png").is_file())
 
 

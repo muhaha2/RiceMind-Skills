@@ -72,12 +72,13 @@ Do not retain a sidecar for a failed query or an empty per-trait result.
 
 ## Figures
 
-For a formal breeding-objective report, run `scripts/build_report_figures.py` after the merged ranking and evidence sidecars are complete. Generate every non-empty data-supported figure, especially:
+For a formal breeding-objective report, design the figure set after the objective has been decomposed, the merged ranking and evidence sidecars are complete, and the report sections are known. Select only figures that advance the current breeding decision, such as:
 
-- candidate targets by Tier 1 or objective-specific article support
-- candidate targets by objective-context independent PMID support
-- objective-support trait count versus yield/growth or other user-specified caution signals
-- Tier 1 trait distribution across candidates
-- publication-year, journal, evidence-code, and source distributions when those fields are available
+- ranked candidates by the evidence metric that directly represents the current objective
+- comparison of multiple objective components or evidence dimensions across candidates
+- benefit-risk or objective-tradeoff plots using the user's actual constraints
+- candidate-by-trait or candidate-by-evidence heatmaps when a matrix clarifies the decision
+- publication-year, journal, evidence-code, source, or Tier distributions when they are relevant to evidence quality or coverage
+- evidence networks when explicit normalized relationships are central to the question
 
-Use the user's actual objective and tradeoff columns; do not hard-code salinity or yield labels for unrelated breeding questions. Put images in `{report_stem}_data/figures/` and insert them into the final report.
+Create a personalized figure plan for `scripts/build_report_figures.py`. Use the user's actual objective, evidence, and tradeoff fields; never carry salinity, yield, disease, quality, or other labels into an unrelated report. Assign every figure to the report section whose reasoning it supports, with a question-specific subsection title and caption. Put images in `{report_stem}_data/figures/` and insert them into the final report at controlled report-safe dimensions.

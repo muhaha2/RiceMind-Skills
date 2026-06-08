@@ -40,7 +40,7 @@ Apply these rules:
 - Keep DOCX, Markdown, PDF, or other primary user-facing reports in the output directory.
 - Put API payloads, normalized CSV/JSON files, mechanism evidence bundles, network tables, intermediate data, and figures inside `{report_stem}_data/`.
 - Put generated plots and images inside `{report_stem}_data/figures/`, unless the user explicitly requests another location.
-- For a formal report, figures are required whenever at least one recommended chart has usable observations. "Optional" means data-dependent, not that visualization may be skipped when suitable data exist.
+- For a formal report, include figures when they materially clarify the current question, evidence structure, ranking, comparison, or relationship. Select a concise, nonredundant set rather than plotting every available column.
 - Generate trait, breeding-objective, ranking, and bibliometric figures with `scripts/build_report_figures.py` after final normalized sidecars are available.
 - For Markdown/PDF workflows, run the script with `--markdown {report}.md` before converting Markdown to PDF. For an existing DOCX, use `--docx {report}.docx`.
 - The report must display or reference every retained generated figure. Do not leave images only in the data directory without connecting them to the report.
@@ -84,24 +84,56 @@ If an endpoint fails or returns no usable data, state the endpoint, query, error
 
 ## Visualization Workflow
 
-Run:
+Complete the report outline and normalized sidecars first. Then create a report-specific JSON figure plan and run:
 
 ```text
-python scripts/build_report_figures.py --data-dir {report_stem}_data --markdown {report_stem}.md
+python scripts/build_report_figures.py --data-dir {report_stem}_data --plan {report_stem}_data/figure_plan.json --markdown {report_stem}.md
 ```
 
-The script detects available normalized sidecars and creates only figures supported by non-empty data. Depending on the task and returned columns, it preserves the legacy visualization set and may generate:
+Each planned figure must define its data source and visual role. Supported chart types are:
 
-- publication-year distribution
-- top candidates by Sentence Evidence count
-- top candidates by independent PMID count
-- journal distribution
-- evidence-code distribution
-- source-database distribution
-- candidate evidence or Tier 1 article support
-- objective-context PMID support
-- objective-support versus yield/growth caution signals
-- Tier 1 trait distribution
+| Analytical need | Preferred chart |
+|---|---|
+| Ranked genes, traits, varieties, journals, sources, or evidence categories | `ranked_bar` or `category_bar` |
+| Two or more evidence or decision criteria across candidates | `grouped_bar` |
+| Benefit-risk, evidence-tradeoff, or two-metric prioritization | `scatter` |
+| Publication or evidence evolution over time | `timeline` |
+| Distribution of a continuous score or count | `histogram` |
+| Candidate-by-trait, gene-by-source, or other two-dimensional evidence matrix | `heatmap` |
+| Explicit normalized relationships among entities | `network` |
+
+A minimal personalized plan has this structure:
+
+```json
+{
+  "language": "zh",
+  "figures": [
+    {
+      "id": "candidate_support",
+      "type": "ranked_bar",
+      "source": "*candidate_ranking.csv",
+      "category": "target",
+      "value": "objective_support",
+      "top_n": 10,
+      "title": "当前育种目标下的候选证据比较",
+      "caption": "按当前目标对应的证据支持指标比较候选对象；数值表示证据密度，不直接等同于育种效应大小。",
+      "section_keywords": ["优先靶点", "候选排序"],
+      "subsection": "候选对象的证据比较",
+      "placement": "end_of_section",
+      "width_percent": 86,
+      "max_height_inches": 5.2
+    }
+  ]
+}
+```
+
+The plan may specify `section`, `section_keywords`, `subsection`, and `placement` so the figure is inserted into the part of the report whose claim it supports. Put evidence composition and temporal figures near retrieval or evidence-distribution analysis, ranking figures near candidate prioritization, tradeoff figures near the decision discussion, and relationship figures near the corresponding synthesis. Use a fallback visual-summary section only when no semantically suitable report section exists.
+
+Titles, subsection names, legends, axes, and captions must reflect the current user question and the actual fields plotted. A caption should state what is measured, what comparison is shown, and how it should be interpreted; it must not imply unsupported causality. Topic-specific terms such as salinity, yield, disease, or quality may appear only when the current report and selected data fields support them.
+
+For Markdown/PDF output, use the generated figure group rather than unrestricted Markdown image syntax. Default to 88% report width, never exceed 7.0 inches in width, set a suitable `max_height_inches` (normally 4.0-6.4), and keep the personalized subsection heading, image, and caption together using `break-inside: avoid`, `page-break-inside: avoid`, and heading break controls. Limit dense ranking charts to roughly 8-12 displayed categories unless a larger figure is specifically justified. Do not allow titles, labels, legends, or captions to be clipped, orphaned, or split across pages.
+
+When no personalized plan is supplied, the script may create task-neutral summaries only from explicit sidecar fields. Use `--write-auto-plan` to inspect that detected fallback plan before rendering. Automatic mode is not a substitute for personalized figure selection in a formal report.
 
 For single-gene DOCX reports, `scripts/build_gene_report.py` retains its integrated confidence, ontology, top-trait, evidence-code, source, and publication-year figures.
 

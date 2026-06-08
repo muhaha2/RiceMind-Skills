@@ -87,7 +87,7 @@ Do not present rankings as definitive biology. Present them as RiceMind evidence
 
 ## Recommended Figures
 
-For a formal report, generate every figure below that has usable observations. `scripts/build_trait_report.py` performs this automatically. For merged or externally assembled sidecars, run `scripts/build_report_figures.py`.
+For a formal report, select the nonredundant figures that best explain the current trait question. `scripts/build_trait_report.py` supplies task-neutral baseline figures for its lightweight report. For a personalized report or externally assembled sidecars, create a JSON figure plan and run `scripts/build_report_figures.py`.
 
 - publication-year distribution
 - top candidate genes by sentence count
@@ -97,3 +97,5 @@ For a formal report, generate every figure below that has usable observations. `
 - evidence network when useful
 
 Store generated images in `{report_stem}_data/figures/` and insert them into the Markdown or DOCX report. Do not keep unreferenced figures.
+
+Place each retained figure beside the relevant evidence-distribution, candidate-ranking, mechanism, relationship, or limitation discussion. Use a report-specific subsection title and interpretive caption rather than a fixed terminal figure gallery. Keep report-body figures within the sizing and page-break rules in `references/output-contracts.md`.
