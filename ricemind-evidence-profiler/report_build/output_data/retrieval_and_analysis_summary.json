@@ -1,0 +1,22 @@
+{
+  "source_file": "C:\\Users\\52475\\Desktop\\CurrentBioinformatics范文\\report\\version1\\水稻抗虫特性\\rice_insect_resistance_combined_sentence_evidence.csv",
+  "source_snapshot_date": "2026-06-05",
+  "selected_sentence_records": 4623,
+  "unique_pmids": 671,
+  "year_min": 1989,
+  "year_max": 2025,
+  "journals": 154,
+  "species_sentence_counts": {
+    "BPH": 4516,
+    "WBPH": 218,
+    "SBPH": 81
+  },
+  "role_counts": {
+    "核心抗性基因/位点": 51,
+    "功能验证的宿主调控/执行因子": 142,
+    "表达/组学关联候选": 45,
+    "作用层级待核验的宿主基因": 178,
+    "其他机制或外源因子": 13
+  },
+  "online_api_status_2026_06_11": "Repeated timeouts; local complete RiceMind export used."
+}

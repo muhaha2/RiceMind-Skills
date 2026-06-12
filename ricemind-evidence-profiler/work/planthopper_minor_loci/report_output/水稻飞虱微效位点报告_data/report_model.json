@@ -1,0 +1,1048 @@
+{
+  "title": "水稻稻飞虱抗性微效位点与功能修饰基因证据报告",
+  "subtitle": "基于RiceMind完整分页句子证据",
+  "date": "2026-06-12",
+  "summary": {
+    "unique_pmids": 911,
+    "year_span": "1989-2025",
+    "candidate_count": 32,
+    "high_priority_count": 6,
+    "evidence_excerpt_count": 85
+  },
+  "retrieval": [
+    {
+      "trait": "brown planthopper resistance",
+      "records": 4678,
+      "pages": 10,
+      "pagination_complete": true,
+      "stop_reason": "total_count"
+    },
+    {
+      "trait": "Brown planthopper damage",
+      "records": 707,
+      "pages": 2,
+      "pagination_complete": true,
+      "stop_reason": "total_count"
+    },
+    {
+      "trait": "white-backed planthopper resistance",
+      "records": 298,
+      "pages": 1,
+      "pagination_complete": true,
+      "stop_reason": "total_count"
+    },
+    {
+      "trait": "Whitebacked planthopper damage",
+      "records": 310,
+      "pages": 1,
+      "pagination_complete": true,
+      "stop_reason": "total_count"
+    },
+    {
+      "trait": "planthopper",
+      "records": 5160,
+      "pages": 11,
+      "pagination_complete": true,
+      "stop_reason": "total_count"
+    }
+  ],
+  "strict_qtls": [
+    {
+      "item": "Lemont/Teqing数量抗性QTL组合",
+      "scope": "BPH",
+      "evidence": "F11重组自交系、完整RFLP图谱和重复苗期鉴定证明BPH抗性具有数量遗传基础。",
+      "pmids": "12582694",
+      "status": "RiceMind句证未保留各QTL名称、效应值和区间，不能进一步按主效/微效拆分。"
+    },
+    {
+      "item": "IR64的7个微效QTL",
+      "scope": "BPH",
+      "evidence": "二次证据称IR64在Bph1失效后仍保持的稳定抗性与分布于1、2、3、4、6和8号染色体的7个微效QTL有关。",
+      "pmids": "29282566",
+      "status": "当前RiceMind句证为后续论文转述，缺少原始QTL名称、标记和效应量；只能作为历史线索。"
+    },
+    {
+      "item": "ADR52的伴随微效QTL",
+      "scope": "BPH/WBPH/GLH",
+      "evidence": "综述性句证指出ADR52除BPH25/BPH26外，还具有与多种叶蝉/飞虱抗性相关的微效QTL。",
+      "pmids": "27300326;29282566",
+      "status": "主效基因为BPH25/BPH26；微效QTL在当前句证中未被逐一解析。"
+    },
+    {
+      "item": "Rathu Heenati的BPH32相关小效应组分",
+      "scope": "BPH",
+      "evidence": "一项QTL-seq研究将染色体6上含BPH32的区域称为与两个染色体4主区域共同作用的minor QTL。",
+      "pmids": "30888525",
+      "status": "BPH32在其他研究中作为命名抗性基因出现，效应分类具有群体和分析背景依赖，不能全局标记为微效。"
+    },
+    {
+      "item": "MAGIC群体Qbph7/SNP簇",
+      "scope": "BPH",
+      "evidence": "多模型GWAS在MAGIC indica群体中检测到与Qbph7重叠的SNP簇和其他数量性关联。",
+      "pmids": "33066559",
+      "status": "属于关联位点而非已验证因果基因；RiceMind句证未提供单个位点PVE。"
+    },
+    {
+      "item": "2024年自然群体GWAS与基因组预测位点",
+      "scope": "BPH",
+      "evidence": "502份材料进行抗性评分、增重和蜜露表型，1,520份材料用于更大规模关联和基因组预测。",
+      "pmids": "38576786",
+      "status": "候选位点和基因尚需因果验证；更适合数量抗性选择而非单基因结论。"
+    }
+  ],
+  "candidates": [
+    {
+      "candidate": "OsClpP6",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "沉默增强实验室与田间抗性，田间产量影响较小。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "38612510",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 3,
+      "tradeoff_risk": 1,
+      "tradeoff": "已有田间与产量信息，但仍需稳定遗传编辑材料和跨生态区验证。",
+      "priority": "高",
+      "mechanism": "通过JA、JA-Ile、ABA和挥发物调控防御，同时参与叶绿体蛋白稳态。"
+    },
+    {
+      "candidate": "OsTPS19/OsTPS20",
+      "scope": "BPH",
+      "mechanism_group": "Volatile and indirect defense",
+      "direction": "正调控",
+      "role": "过表达提高柠檬烯释放并降低田间BPH发生，报告中未见显著产量性状损失。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "39340817",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 3,
+      "tradeoff_risk": 2,
+      "tradeoff": "高柠檬烯可能促进二化螟等非目标害虫，存在虫谱转换风险。",
+      "priority": "高",
+      "mechanism": "柠檬烯影响取食偏好和卵孵化，并连接抗虫与抗病。"
+    },
+    {
+      "candidate": "OsWRKY36",
+      "scope": "BPH/WBPH/SBPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "敲除后增强多种稻飞虱抗性；不是经典Bph主效位点。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "40042898",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2025,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "RiceMind句证支持成熟期评价和多虫种抗性；仍需多背景、田间和产量稳定性验证。",
+      "priority": "高",
+      "mechanism": "转录调控与防御输出重排，并具有跨虫种抗性表型。"
+    },
+    {
+      "candidate": "JAZ10/FJ10",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "特定移码等位变异增抗",
+      "role": "JAZ10移码产生FJ10，兼顾生长与褐飞虱抗性。",
+      "classification_boundary": "功能修饰等位变异；不等同于已部署主效抗性基因",
+      "primary_pmids": "39693337",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "目前RiceMind仅提供单项研究的关键结论，缺少多环境和多遗传背景验证。",
+      "priority": "高",
+      "mechanism": "改变JA抑制子功能，提示可通过等位基因设计缓解生长-防御矛盾。"
+    },
+    {
+      "candidate": "OsPGI1c",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "正调控",
+      "role": "过表达同时增强植株生长和BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "39796027",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "缺少田间、多生物型和产量品质验证。",
+      "priority": "高",
+      "mechanism": "胞质磷酸葡萄糖异构酶连接糖代谢、海藻糖水平和抗虫反应。"
+    },
+    {
+      "candidate": "OsmiR396-OsGRF8-OsF3H",
+      "scope": "BPH/WBPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "OsF3H正调控",
+      "role": "黄酮通路同时获得BPH功能验证和WBPH QTL/过表达支持。",
+      "classification_boundary": "QTL支持的代谢调控基因；效应类别需按群体和虫种分别判断",
+      "primary_pmids": "30734457;32895423;33401742;36499636",
+      "primary_pmid_count": 4,
+      "all_matching_pmids": 23,
+      "first_year": 2019,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "WBPH研究将F3H与QTL联系，但其效应是否稳定达到主效标准仍需跨群体验证。",
+      "priority": "高",
+      "mechanism": "小RNA-转录因子-黄酮合成轴改变抗虫代谢物。"
+    },
+    {
+      "candidate": "OsGF14e-OsEDR1l",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "敲除增强抗性，但过表达增感；属于昆虫效应子利用的宿主免疫抑制模块。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "39853648",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2025,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 3,
+      "tradeoff": "敲除导致生长和籽粒产量下降，不适合直接作为无条件编辑靶点。",
+      "priority": "中",
+      "mechanism": "BPH效应子Nl14模拟宿主调控因子，抑制JA、JA-Ile和H2O2防御。"
+    },
+    {
+      "candidate": "OsMYB1-OsSPL14",
+      "scope": "BPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "依赖拮抗关系",
+      "role": "MYB与SPL转录调控模块影响BPH及细菌病害抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "39724382",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "需要明确自然等位变异、背景依赖和产量构成影响。",
+      "priority": "中",
+      "mechanism": "通过转录因子拮抗协调不同生物胁迫下的防御输出。"
+    },
+    {
+      "candidate": "MYC2-JAMYB",
+      "scope": "BPH",
+      "mechanism_group": "Hormone signaling",
+      "direction": "正调控",
+      "role": "MYC2-JAMYB转录级联参与JA介导的BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "40169387",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 4,
+      "first_year": 2022,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "最新单项研究为主，尚缺育种材料和田间验证。",
+      "priority": "中",
+      "mechanism": "将JA感知与下游转录防御连接。"
+    },
+    {
+      "candidate": "OsmiR319-OsPCF5",
+      "scope": "BPH",
+      "mechanism_group": "Small RNA regulation",
+      "direction": "OsmiR319负调控",
+      "role": "OsmiR319过表达增感，降低其活性可增强抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "38520013",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "需要验证靶向编辑是否影响发育及其他胁迫响应。",
+      "priority": "中",
+      "mechanism": "OsPCF5与MYB蛋白网络连接小RNA调控和苯丙烷防御。"
+    },
+    {
+      "candidate": "OsNCED3",
+      "scope": "BPH",
+      "mechanism_group": "Hormone signaling",
+      "direction": "正调控",
+      "role": "过表达增强抗性，RNAi材料抗性降低。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "36064309;38988632",
+      "primary_pmid_count": 2,
+      "all_matching_pmids": 3,
+      "first_year": 2022,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "过表达材料株高、根系和生物量下降，存在明显生长代价。",
+      "priority": "中",
+      "mechanism": "ABA合成促进黄酮、草酸等防御化合物积累并改变取食。"
+    },
+    {
+      "candidate": "OsRCI-1",
+      "scope": "BPH",
+      "mechanism_group": "Volatile and indirect defense",
+      "direction": "正调控",
+      "role": "过表达降低取食和产卵偏好，并提高卵寄生蜂寄生率。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "38891303",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2024,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "田间稳定性和对非目标昆虫群落的影响仍需验证。",
+      "priority": "中",
+      "mechanism": "促进绿叶挥发物形成，兼具直接拒食与间接防御。"
+    },
+    {
+      "candidate": "SDG703",
+      "scope": "BPH/WBPH/SBPH",
+      "mechanism_group": "Epigenetic regulation",
+      "direction": "负调控",
+      "role": "抑制防御相关基因表达并影响多种稻飞虱抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "37629184",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2023,
+      "latest_year": 2023,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "表观遗传靶点可能具有广泛多效性，需精细等位基因或组织特异调控。",
+      "priority": "中",
+      "mechanism": "组蛋白甲基化相关表观调控。"
+    },
+    {
+      "candidate": "OsEBF2",
+      "scope": "BPH",
+      "mechanism_group": "Hormone signaling",
+      "direction": "正调控",
+      "role": "F-box蛋白促进BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "36462682",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 3,
+      "first_year": 2023,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "缺少田间和多背景资料。",
+      "priority": "中",
+      "mechanism": "通过乙烯与JA信号协同调节防御。"
+    },
+    {
+      "candidate": "OsJMJ715",
+      "scope": "BPH",
+      "mechanism_group": "Epigenetic regulation",
+      "direction": "负调控",
+      "role": "沉默后通过ABA和JA信号增强抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "34884830",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2021,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "潜在多效性和长期稳定性尚不清楚。",
+      "priority": "中",
+      "mechanism": "组蛋白去甲基化相关调控连接染色质状态与激素防御。"
+    },
+    {
+      "candidate": "OsI-BAK1",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "沉默该胞外LRR基因增强BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "34830062",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2021,
+      "latest_year": 2021,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "缺少自然变异、田间和发育代价验证。",
+      "priority": "中",
+      "mechanism": "可能通过受体复合体或细胞表面信号影响防御阈值。"
+    },
+    {
+      "candidate": "OM64",
+      "scope": "BPH及咀嚼式害虫",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "线粒体外膜蛋白缺失增强对刺吸式和咀嚼式昆虫的抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "32542992",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2020,
+      "latest_year": 2020,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "广谱效应有价值，但线粒体相关多效性需系统评价。",
+      "priority": "中",
+      "mechanism": "线粒体功能与广谱抗虫防御耦合。"
+    },
+    {
+      "candidate": "MYB22-TOPLESS-HDAC1",
+      "scope": "BPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "正调控",
+      "role": "转录抑制复合体通过抑制F3'H促进BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "37149887",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2023,
+      "latest_year": 2023,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "需明确对品质、色素和其他代谢性状的影响。",
+      "priority": "中",
+      "mechanism": "重排黄酮代谢分支，说明代谢物组成而非总量决定防御效果。"
+    },
+    {
+      "candidate": "OsWRKY71",
+      "scope": "BPH",
+      "mechanism_group": "Major-locus-dependent modifier",
+      "direction": "正向依赖",
+      "role": "敲除削弱Bph15介导的抗性，属于主效位点下游修饰节点。",
+      "classification_boundary": "主效位点依赖型修饰节点；不是独立抗性位点",
+      "primary_pmids": "38023936",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 3,
+      "first_year": 2022,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "不能作为独立微效抗性来源评价，必须在Bph15背景中验证。",
+      "priority": "中",
+      "mechanism": "连接Bph15识别与转录防御。"
+    },
+    {
+      "candidate": "OsPep3-OsPEPRs",
+      "scope": "BPH/WBPH",
+      "mechanism_group": "Peptide immunity",
+      "direction": "正调控",
+      "role": "OsPEPR敲除削弱抗性，外源OsPep3增强抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "35068048",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 4,
+      "first_year": 2022,
+      "latest_year": 2023,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "外源施用与遗传改良的应用路径不同，需评价持续性和成本。",
+      "priority": "中",
+      "mechanism": "内源损伤肽信号激活刺吸式昆虫防御。"
+    },
+    {
+      "candidate": "OsEXO70H3",
+      "scope": "BPH",
+      "mechanism_group": "Structural defense",
+      "direction": "正调控",
+      "role": "参与SAMSL分泌和细胞壁木质素沉积，是抗性执行节点。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "35119102",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2022,
+      "latest_year": 2023,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "缺少自然等位变异、田间和产量信息。",
+      "priority": "中",
+      "mechanism": "囊泡运输连接代谢酶外排与细胞壁加固。"
+    },
+    {
+      "candidate": "OsMYB30-OsPAL6/OsPAL8",
+      "scope": "BPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "正调控",
+      "role": "转录因子及PAL通路遗传操作改变BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "31848246",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 14,
+      "first_year": 2020,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "属于机制明确的修饰/执行模块，但尚不能据此认定为主效育种基因。",
+      "priority": "中",
+      "mechanism": "苯丙烷、SA与木质素积累共同增强结构和化学防御。"
+    },
+    {
+      "candidate": "OsMKK3",
+      "scope": "BPH",
+      "mechanism_group": "Hormone signaling",
+      "direction": "正调控",
+      "role": "过表达增强BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "31226870",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2019,
+      "latest_year": 2022,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "缺少田间、多背景和长期产量资料。",
+      "priority": "中",
+      "mechanism": "MAPK级联改变JA、JA-Ile和ABA动态。"
+    },
+    {
+      "candidate": "OsGID1-OsSLR1",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "背景与节点依赖",
+      "role": "OsGID1过表达和OsSLR1沉默均可增强抗性，显示GA通路存在非线性调控。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "30217023;28666057",
+      "primary_pmid_count": 2,
+      "all_matching_pmids": 8,
+      "first_year": 2017,
+      "latest_year": 2025,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "不同干预方向均出现增抗，提示不宜直接外推为简单线性育种靶点。",
+      "priority": "中",
+      "mechanism": "GA-DELLA网络影响木质素、JA、乙烯和H2O2。"
+    },
+    {
+      "candidate": "OsWRKY45/OsWRKY53/OsWRKY70/OsERF3",
+      "scope": "BPH",
+      "mechanism_group": "Hormone signaling",
+      "direction": "方向因成员而异",
+      "role": "多个转录因子经沉默或过表达验证会改变BPH抗性。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "27258255;27031005;26083713;21831212;23228240",
+      "primary_pmid_count": 5,
+      "all_matching_pmids": 21,
+      "first_year": 2011,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 2,
+      "tradeoff": "成员作用方向和对咀嚼式害虫的效应不同，不能作为统一模块直接编辑。",
+      "priority": "中",
+      "mechanism": "围绕H2O2、乙烯、JA及其他昆虫防御形成早期调控网络。"
+    },
+    {
+      "candidate": "OsCM",
+      "scope": "WBPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "正调控",
+      "role": "过表达提高SA、木质素和抗氧化物，并增强WBPH响应。",
+      "classification_boundary": "WBPH功能修饰基因；是否属于QTL因研究定义而异",
+      "primary_pmids": "34829551;33401742",
+      "primary_pmid_count": 2,
+      "all_matching_pmids": 3,
+      "first_year": 2021,
+      "latest_year": 2021,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 1,
+      "tradeoff": "证据主要来自特定遗传材料，需独立重复和田间验证。",
+      "priority": "中",
+      "mechanism": "莽草酸/SA相关代谢连接木质素和抗氧化防御。"
+    },
+    {
+      "candidate": "OsRLK7-1",
+      "scope": "BPH/WBPH/SBPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控",
+      "role": "敲除增强稻飞虱抗性，但损害生长发育。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "37834016",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2023,
+      "latest_year": 2023,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 3,
+      "tradeoff": "生长发育代价明确，直接育种利用风险较高。",
+      "priority": "低",
+      "mechanism": "受体激酶调节生长与防御平衡。"
+    },
+    {
+      "candidate": "OsEXPA10",
+      "scope": "BPH",
+      "mechanism_group": "Growth-defense editing",
+      "direction": "负调控抗性",
+      "role": "过表达促进生长但增感，敲低增抗但降低株高和粒重。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "29619515",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 3,
+      "first_year": 2018,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 3,
+      "tradeoff": "明确存在株高和粒重代价，直接敲除育种价值有限。",
+      "priority": "低",
+      "mechanism": "细胞壁松弛蛋白直接体现生长-防御权衡。"
+    },
+    {
+      "candidate": "OsHPL3/OsHI-LOX",
+      "scope": "BPH/WBPH及咀嚼式害虫",
+      "mechanism_group": "Species-specific defense",
+      "direction": "虫种依赖",
+      "role": "同一氧脂素/挥发物节点对BPH、WBPH和咀嚼式害虫可能产生相反效应。",
+      "classification_boundary": "虫种依赖型修饰节点；不能脱离目标虫种讨论效应",
+      "primary_pmids": "22519706;19656341;19891707;38891303",
+      "primary_pmid_count": 4,
+      "all_matching_pmids": 12,
+      "first_year": 2009,
+      "latest_year": 2024,
+      "breeding_readiness": 2,
+      "tradeoff_risk": 3,
+      "tradeoff": "具有明显虫谱权衡，不适合作为单一方向的广谱抗虫靶点。",
+      "priority": "低",
+      "mechanism": "JA分支与绿叶挥发物分支的资源分配改变不同昆虫的取食和天敌招募。"
+    },
+    {
+      "candidate": "OsSPL10",
+      "scope": "BPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "调控方向依赖研究材料",
+      "role": "组学与功能分析支持其参与BPH防御。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "37819387",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 2,
+      "first_year": 2023,
+      "latest_year": 2023,
+      "breeding_readiness": 1,
+      "tradeoff_risk": 1,
+      "tradeoff": "RiceMind句证中的直接遗传效应信息有限。",
+      "priority": "低",
+      "mechanism": "连接转录调控、代谢变化和抗性表型。"
+    },
+    {
+      "candidate": "OsHLH61-OsbHLH96",
+      "scope": "BPH",
+      "mechanism_group": "Transcriptional and metabolic defense",
+      "direction": "调控抗性",
+      "role": "bHLH模块影响病程相关基因和BPH防御。",
+      "classification_boundary": "功能修饰位点；效应量未量化",
+      "primary_pmids": "30796564",
+      "primary_pmid_count": 1,
+      "all_matching_pmids": 1,
+      "first_year": 2019,
+      "latest_year": 2019,
+      "breeding_readiness": 1,
+      "tradeoff_risk": 1,
+      "tradeoff": "功能和育种验证深度低于核心候选。",
+      "priority": "低",
+      "mechanism": "转录因子互作调整防御基因表达。"
+    },
+    {
+      "candidate": "OsNPR1",
+      "scope": "WBPH/BPH",
+      "mechanism_group": "Species-specific defense",
+      "direction": "对WBPH可能负调控",
+      "role": "病害抗性增强可能伴随WBPH抗性下降，体现跨胁迫权衡。",
+      "classification_boundary": "权衡信号节点；目前不宜视为可直接利用的微效抗性位点",
+      "primary_pmids": "40042898;34943188",
+      "primary_pmid_count": 2,
+      "all_matching_pmids": 8,
+      "first_year": 2017,
+      "latest_year": 2025,
+      "breeding_readiness": 1,
+      "tradeoff_risk": 3,
+      "tradeoff": "直接WBPH遗传验证有限，且跨病虫权衡突出。",
+      "priority": "低",
+      "mechanism": "SA-JA拮抗改变不同病虫害的防御配置。"
+    }
+  ],
+  "boundary_items": [
+    {
+      "item": "经典Bph/Wbph主效抗性基因",
+      "examples": "Bph1/2/3/6/9/14/15/18/25/26/29/32等；Wbph1-Wbph6",
+      "decision": "不纳入微效位点清单。即使其下游存在复杂网络，也不能因机制未完全阐明而降格为微效。"
+    },
+    {
+      "item": "qWL6",
+      "examples": "WBPH产卵诱导坏死/杀卵反应QTL",
+      "decision": "原文明确称major QTL，因此作为边界对象说明，不归入微效QTL。"
+    },
+    {
+      "item": "Bph3/OsLecRK基因簇",
+      "examples": "OsLecRK1/2/3",
+      "decision": "属于经典抗性基因簇语境，不能把其中成员简单列为独立微效位点。"
+    },
+    {
+      "item": "仅表达响应的OsWRKY/OsNAC及组学候选",
+      "examples": "WBPH诱导的多个OsWRKY、OsNAC、lncRNA和circRNA",
+      "decision": "缺少遗传扰动与抗性终点时，仅列为探索候选，不进入功能微效位点主表。"
+    },
+    {
+      "item": "昆虫基因和杀虫剂抗性基因",
+      "examples": "Nl开头基因、CYP/P450等昆虫适应或药剂抗性基因",
+      "decision": "不属于水稻宿主抗性位点，全部排除。"
+    }
+  ],
+  "citations": [
+    {
+      "PMID": "40169387",
+      "year": "2025",
+      "journal": "The New phytologist",
+      "title": "The MYC2-JAMYB transcriptional cascade regulates rice resistance to brown planthoppers."
+    },
+    {
+      "PMID": "40042898",
+      "year": "2025",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "title": "A WRKY transcription factor confers broad-spectrum resistance to biotic stresses and yield stability in rice."
+    },
+    {
+      "PMID": "39853648",
+      "year": "2025",
+      "journal": "Advanced science (Weinheim, Baden-Wurttemberg, Germany)",
+      "title": "An Insect Effector Mimics Its Host Immune Regulator to Undermine Plant Immunity."
+    },
+    {
+      "PMID": "39796027",
+      "year": "2024",
+      "journal": "International journal of molecular sciences",
+      "title": "A Cytosolic Phosphoglucose Isomerase, OsPGI1c, Enhances Plant Growth and Herbivore Resistance in Rice."
+    },
+    {
+      "PMID": "39724382",
+      "year": "2024",
+      "journal": "Plant cell reports",
+      "title": "OsMYB1 antagonizes OsSPL14 to mediate rice resistance to brown planthopper and Xanthomonas oryzae pv. oryzae."
+    },
+    {
+      "PMID": "39693337",
+      "year": "2024",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "title": "A frameshift mutation in JAZ10 resolves the growth versus defense dilemma in rice."
+    },
+    {
+      "PMID": "39340817",
+      "year": "2024",
+      "journal": "Plant biotechnology journal",
+      "title": "Limonene enhances rice plant resistance to a piercing-sucking herbivore and rice pathogens."
+    },
+    {
+      "PMID": "38988632",
+      "year": "2024",
+      "journal": "Frontiers in plant science",
+      "title": "A key ABA biosynthetic gene OsNCED3 is a positive regulator in resistance to Nilaparvata lugens in Oryza sativa."
+    },
+    {
+      "PMID": "38891303",
+      "year": "2024",
+      "journal": "Plants (Basel, Switzerland)",
+      "title": "OsRCI-1-Mediated GLVs Enhance Rice Resistance to Brown Planthoppers."
+    },
+    {
+      "PMID": "38612510",
+      "year": "2024",
+      "journal": "International journal of molecular sciences",
+      "title": "Silencing an ATP-Dependent Caseinolytic Protease Proteolytic Subunit Gene Enhances the Resistance of Rice to Nilaparvata lugens."
+    },
+    {
+      "PMID": "38576786",
+      "year": "2024",
+      "journal": "Frontiers in plant science",
+      "title": "Genome-wide association study and genomic prediction for resistance to brown planthopper in rice."
+    },
+    {
+      "PMID": "38520013",
+      "year": "2024",
+      "journal": "BMC biology",
+      "title": "OsmiR319-OsPCF5 modulate resistance to brown planthopper in rice through association with MYB proteins."
+    },
+    {
+      "PMID": "38023936",
+      "year": "2023",
+      "journal": "Frontiers in plant science",
+      "title": "Knockout of OsWRKY71 impairs Bph15-mediated resistance against brown planthopper in rice."
+    },
+    {
+      "PMID": "37834016",
+      "year": "2023",
+      "journal": "International journal of molecular sciences",
+      "title": "Knocking Out OsRLK7-1 Impairs Rice Growth and Development but Enhances Its Resistance to Planthoppers."
+    },
+    {
+      "PMID": "37819387",
+      "year": "2023",
+      "journal": "Plant cell reports",
+      "title": "Integration of transcriptome and metabolome analyses reveals the role of OsSPL10 in rice defense against brown planthopper."
+    },
+    {
+      "PMID": "37629184",
+      "year": "2023",
+      "journal": "International journal of molecular sciences",
+      "title": "SET Domain Group 703 Regulates Planthopper Resistance by Suppressing the Expression of Defense-Related Genes."
+    },
+    {
+      "PMID": "37149887",
+      "year": "2023",
+      "journal": "The New phytologist",
+      "title": "A novel transcriptional repressor complex MYB22-TOPLESS-HDAC1 promotes rice resistance to brown planthopper by repressing F3'H expression."
+    },
+    {
+      "PMID": "36462682",
+      "year": "2023",
+      "journal": "Plant science : an international journal of experimental plant biology",
+      "title": "The F-box protein OsEBF2 confers the resistance to the brown planthopper (Nilparvata lugens Stål)."
+    },
+    {
+      "PMID": "36499636",
+      "year": "2022",
+      "journal": "International journal of molecular sciences",
+      "title": "Enhancing the Expression of the OsF3H Gene in Oryza sativa Leads to the Regulation of Multiple Biosynthetic Pathways and Transcriptomic Changes That Influence Insect Resistance."
+    },
+    {
+      "PMID": "36064309",
+      "year": "2022",
+      "journal": "BMC genomics",
+      "title": "Transcriptome profiling in rice reveals a positive role for OsNCED3 in defense against the brown planthopper, Nilaparvata lugens."
+    },
+    {
+      "PMID": "35119102",
+      "year": "2022",
+      "journal": "The New phytologist",
+      "title": "Necessity of rice resistance to planthoppers for OsEXO70H3 regulating SAMSL excretion and lignin deposition in cell walls."
+    },
+    {
+      "PMID": "35068048",
+      "year": "2022",
+      "journal": "Plant biotechnology journal",
+      "title": "Plant elicitor peptide signalling confers rice resistance to piercing-sucking insect herbivores and pathogens."
+    },
+    {
+      "PMID": "34943188",
+      "year": "2021",
+      "journal": "Biology",
+      "title": "Biological Efficacy of Cochlioquinone-9, a Natural Plant Defense Compound for White-Backed Planthopper Control in Rice."
+    },
+    {
+      "PMID": "34884830",
+      "year": "2021",
+      "journal": "International journal of molecular sciences",
+      "title": "Silencing an E3 Ubiquitin Ligase Gene OsJMJ715 Enhances the Resistance of Rice to a Piercing-Sucking Herbivore by Activating ABA and JA Signaling Pathways."
+    },
+    {
+      "PMID": "34830062",
+      "year": "2021",
+      "journal": "International journal of molecular sciences",
+      "title": "Silencing a Simple Extracellular Leucine-Rich Repeat Gene OsI-BAK1 Enhances the Resistance of Rice to Brown Planthopper Nilaparvata lugens."
+    },
+    {
+      "PMID": "34829551",
+      "year": "2021",
+      "journal": "Antioxidants (Basel, Switzerland)",
+      "title": "Over-Expression of Chorismate Mutase Enhances the Accumulation of Salicylic Acid, Lignin, and Antioxidants in Response to the White-Backed Planthopper in Rice Plants."
+    },
+    {
+      "PMID": "33401742",
+      "year": "2021",
+      "journal": "Plants (Basel, Switzerland)",
+      "title": "Identification of F3H, Major Secondary Metabolite-Related Gene That Confers Resistance against Whitebacked Planthopper through QTL Mapping in Rice."
+    },
+    {
+      "PMID": "33066559",
+      "year": "2020",
+      "journal": "Vaccines",
+      "title": "Multiple Genome Wide Association Mapping Models Identify Quantitative Trait Nucleotides for Brown Planthopper (Nilaparvata lugens) Resistance in MAGIC Indica Population of Rice."
+    },
+    {
+      "PMID": "32895423",
+      "year": "2020",
+      "journal": "Scientific reports",
+      "title": "Overexpression of OsF(3)H modulates WBPH stress by alteration of phenylpropanoid pathway at a transcriptomic and metabolomic level in Oryza sativa."
+    },
+    {
+      "PMID": "32542992",
+      "year": "2020",
+      "journal": "Journal of integrative plant biology",
+      "title": "Deficiency of mitochondrial outer membrane protein 64 confers rice resistance to both piercing-sucking and chewing insects in rice."
+    },
+    {
+      "PMID": "31848246",
+      "year": "2020",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "title": "An R2R3 MYB transcription factor confers brown planthopper resistance by regulating the phenylalanine ammonia-lyase pathway in rice."
+    },
+    {
+      "PMID": "31226870",
+      "year": "2019",
+      "journal": "International journal of molecular sciences",
+      "title": "OsMKK3, a Stress-Responsive Protein Kinase, Positively Regulates Rice Resistance to Nilaparvata lugens via Phytohormone Dynamics."
+    },
+    {
+      "PMID": "30888525",
+      "year": "2019",
+      "journal": "Rice (New York, N.Y.)",
+      "title": "Identification of spontaneous mutation for broad-spectrum brown planthopper resistance in a large, long-term fast neutron mutagenized rice population."
+    },
+    {
+      "PMID": "30796564",
+      "year": "2019",
+      "journal": "Rice (New York, N.Y.)",
+      "title": "OsHLH61-OsbHLH96 influences rice defense to brown planthopper through regulating the pathogen-related genes."
+    },
+    {
+      "PMID": "30734457",
+      "year": "2019",
+      "journal": "Plant biotechnology journal",
+      "title": "The OsmiR396-OsGRF8-OsF3H-flavonoid pathway mediates resistance to the brown planthopper in rice (Oryza sativa)."
+    },
+    {
+      "PMID": "30217023",
+      "year": "2018",
+      "journal": "International journal of molecular sciences",
+      "title": "Overexpression of OsGID1 Enhances the Resistance of Rice to the Brown Planthopper Nilaparvata lugens."
+    },
+    {
+      "PMID": "29619515",
+      "year": "2018",
+      "journal": "Plant cell reports",
+      "title": "OsEXPA10 mediates the balance between growth and resistance to biotic stress in rice."
+    },
+    {
+      "PMID": "29282566",
+      "year": "2017",
+      "journal": "Rice (New York, N.Y.)",
+      "title": "Marker assisted pyramiding of Bph6 and Bph9 into elite restorer line 93-11 and development of functional marker for Bph9."
+    },
+    {
+      "PMID": "28666057",
+      "year": "2017",
+      "journal": "Plant, cell & environment",
+      "title": "Silencing OsSLR1 enhances the resistance of rice to the brown planthopper Nilaparvata lugens."
+    },
+    {
+      "PMID": "27300326",
+      "year": "2016",
+      "journal": "Rice (New York, N.Y.)",
+      "title": "Recent progress on the genetics and molecular breeding of brown planthopper resistance in rice."
+    },
+    {
+      "PMID": "27258255",
+      "year": "2016",
+      "journal": "International journal of molecular sciences",
+      "title": "The Transcription Factor OsWRKY45 Negatively Modulates the Resistance of Rice to the Brown Planthopper Nilaparvata lugens."
+    },
+    {
+      "PMID": "27031005",
+      "year": "2016",
+      "journal": "Plant signaling & behavior",
+      "title": "OsWRKY53, a versatile switch in regulating herbivore-induced defense responses in rice."
+    },
+    {
+      "PMID": "26083713",
+      "year": "2015",
+      "journal": "eLife",
+      "title": "Prioritizing plant defence over growth through WRKY regulation facilitates infestation by non-target herbivores."
+    },
+    {
+      "PMID": "23228240",
+      "year": "2012",
+      "journal": "BMC genomics",
+      "title": "Identification of transcription factors potential related to brown planthopper resistance in rice via microarray expression profiling."
+    },
+    {
+      "PMID": "22519706",
+      "year": "2012",
+      "journal": "The Plant journal : for cell and molecular biology",
+      "title": "The rice hydroperoxide lyase OsHPL3 functions in defense responses by modulating the oxylipin pathway."
+    },
+    {
+      "PMID": "21831212",
+      "year": "2011",
+      "journal": "The Plant journal : for cell and molecular biology",
+      "title": "An EAR-motif-containing ERF transcription factor affects herbivore-induced signaling, defense and resistance in rice."
+    },
+    {
+      "PMID": "19891707",
+      "year": "2010",
+      "journal": "The Plant journal : for cell and molecular biology",
+      "title": "Role of hydroperoxide lyase in white-backed planthopper (Sogatella furcifera Horváth)-induced resistance to bacterial blight in rice, Oryza sativa L."
+    },
+    {
+      "PMID": "19656341",
+      "year": "2009",
+      "journal": "The Plant journal : for cell and molecular biology",
+      "title": "Silencing OsHI-LOX makes rice more susceptible to chewing herbivores, but enhances resistance to a phloem feeder."
+    },
+    {
+      "PMID": "12582694",
+      "year": "2002",
+      "journal": "TAG. Theoretical and applied genetics. Theoretische und angewandte Genetik",
+      "title": "RFLP-facilitated investigation of the quantitative resistance of rice to brown planthopper ( Nilaparvata lugens)."
+    }
+  ],
+  "evidence_by_candidate": {
+    "OsWRKY36": 3,
+    "JAZ10/FJ10": 1,
+    "OsClpP6": 3,
+    "OsTPS19/OsTPS20": 3,
+    "OsGF14e-OsEDR1l": 3,
+    "OsPGI1c": 2,
+    "OsMYB1-OsSPL14": 3,
+    "MYC2-JAMYB": 1,
+    "OsmiR319-OsPCF5": 3,
+    "OsNCED3": 3,
+    "OsRCI-1": 3,
+    "OsRLK7-1": 3,
+    "SDG703": 3,
+    "OsEBF2": 3,
+    "OsJMJ715": 3,
+    "OsI-BAK1": 3,
+    "OM64": 1,
+    "MYB22-TOPLESS-HDAC1": 2,
+    "OsSPL10": 3,
+    "OsWRKY71": 3,
+    "OsPep3-OsPEPRs": 3,
+    "OsEXO70H3": 3,
+    "OsMYB30-OsPAL6/OsPAL8": 1,
+    "OsmiR396-OsGRF8-OsF3H": 3,
+    "OsMKK3": 3,
+    "OsHLH61-OsbHLH96": 3,
+    "OsGID1-OsSLR1": 3,
+    "OsEXPA10": 2,
+    "OsWRKY45/OsWRKY53/OsWRKY70/OsERF3": 3,
+    "OsHPL3/OsHI-LOX": 3,
+    "OsCM": 3,
+    "OsNPR1": 3
+  },
+  "figures": [
+    {
+      "path": "C:\\Users\\52475\\.codex\\skills\\ricemind-evidence-profiler\\work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\candidate_mechanism_groups.png",
+      "width": 610,
+      "height": 430,
+      "caption": "图1 功能修饰候选的机制类别分布。该图表示候选数量，不表示遗传效应大小。"
+    },
+    {
+      "path": "C:\\Users\\52475\\.codex\\skills\\ricemind-evidence-profiler\\work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\candidate_readiness_tradeoff.png",
+      "width": 480,
+      "height": 600,
+      "caption": "图2 候选的育种成熟度与权衡风险。右上区域需要重点审查多效性，不能仅凭增抗表型推进。"
+    },
+    {
+      "path": "C:\\Users\\52475\\.codex\\skills\\ricemind-evidence-profiler\\work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\selected_evidence_timeline.png",
+      "width": 610,
+      "height": 330,
+      "caption": "图3 入选候选代表性证据的发表年份分布，反映研究关注与功能验证积累。"
+    }
+  ]
+}

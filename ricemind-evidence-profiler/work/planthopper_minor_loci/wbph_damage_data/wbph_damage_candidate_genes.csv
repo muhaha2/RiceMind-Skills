@@ -1,0 +1,227 @@
+﻿candidate_gene,sentence_count,unique_pmids,top_traits,top_journals,pmids
+TN1,38,18,,"International journal of molecular sciences; BMC plant biology; Rice (New York, N.Y.); Biology; PloS one",14997651;16180760;23228240;24886295;25141278;27760223;31468345;31620116;32238850;32853293;33677774;34829551;34830062;34943188;35897828;37762286;37958711;38136986
+Wbph1,6,5,,"BMC plant biology; Microorganisms; Insects; Plants (Basel, Switzerland); PloS one",24886295;32853293;33401742;35886780;38930586
+IR22,6,4,,PloS one; Insects; Functional ecology,32603337;33022691;33612910;35886780
+Wbph2,4,4,,"Microorganisms; Insects; Plants (Basel, Switzerland); PloS one",32853293;33401742;35886780;38930586
+T65,4,3,,"PloS one; Crop protection (Guildford, Surrey); TAG. Theoretical and applied genetics. Theoretische und angewandte Genetik",22048639;30739972;33022691
+ADR52,4,3,,"TAG. Theoretical and applied genetics. Theoretische und angewandte Genetik; Rice (New York, N.Y.); Ying yong sheng tai xue bao = The journal of applied ecology",16180760;22048639;27300326
+NPR1,3,3,,International journal of molecular sciences; Biology,34943188;35897828;36499636
+RP2068,10,2,,"Rice (New York, N.Y.); International journal of molecular sciences",33677774;37762286
+OsF3H,9,2,,Scientific reports; International journal of molecular sciences,32895423;36499636
+RP2068-18-3-5,6,2,,"Rice (New York, N.Y.); International journal of molecular sciences",33677774;37762286
+OxF3H,6,2,,International journal of molecular sciences; Scientific reports,32895423;36499636
+OsNPR1,4,2,,Biology; Proceedings of the National Academy of Sciences of the United States of America,34943188;40042898
+OsCM,4,2,,"Antioxidants (Basel, Switzerland); Biology",34829563;34943188
+cq-9,4,2,,"Biology; Antioxidants (Basel, Switzerland)",34829563;34943188
+PR1,3,2,,"Antioxidants (Basel, Switzerland); Frontiers in plant science",34829551;39091314
+F14,3,2,,"International journal of molecular sciences; Rice (New York, N.Y.)",33677774;37762286
+Wbph6,3,2,,"BMC plant biology; Plants (Basel, Switzerland)",24886295;33401742
+H2O2,3,2,,International journal of molecular sciences; Scientific reports,29695083;32238850
+PR2,2,2,,"Frontiers in plant science; Antioxidants (Basel, Switzerland)",34829551;39091314
+P450,2,2,,International journal of molecular sciences; Biology,34440027;37762286
+IR62,2,2,,Insects,35323548;35886780
+BPH25,2,2,,Insects; PloS one,32853293;35323548
+BPH26,2,2,,Insects; PloS one,32853293;35323548
+Bph1,2,2,,Insects; PloS one,32853293;35323548
+Bph18,2,2,,Insects; PloS one,32853293;35323548
+bph2,2,2,,Insects; PloS one,32853293;35323548
+AOS2,2,2,,International journal of molecular sciences; Scientific reports,29899498;35897828
+N22,2,2,,Ying yong sheng tai xue bao = The journal of applied ecology,14997651;16180760
+OsNAC,7,1,,International journal of molecular sciences,36499722
+OsWRKY,6,1,,International journal of molecular sciences,36499722
+CJ06,6,1,,BMC plant biology,24886295
+OsRLK7-1,5,1,,International journal of molecular sciences,37834016
+F3H,4,1,,"Plants (Basel, Switzerland)",33401742
+TR3RR,3,1,,"Rice (New York, N.Y.)",33677774
+OsNACs,2,1,,International journal of molecular sciences,36499722
+OsWRKYs,2,1,,International journal of molecular sciences,36499722
+CNDH3,2,1,,Biology,34943188
+CNDH45,2,1,,Biology,34943188
+OsF3H1,2,1,,Biology,34943188
+OsWRKY45,2,1,,Biology,34943188
+PRJNA577384,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394596,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394597,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394598,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394599,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394600,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394601,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394602,2,1,,"Rice (New York, N.Y.)",33677774
+SRR10394603,2,1,,"Rice (New York, N.Y.)",33677774
+OsFLS,2,1,,Scientific reports,32895423
+Taichong1,2,1,,Scientific reports,31700122
+qWL6,2,1,,BMC plant biology,24886295
+OsWRKY36,1,1,,Proceedings of the National Academy of Sciences of the United States of America,40042898
+WBPH1989,1,1,,Microorganisms,38930586
+WBPH1999,1,1,,Microorganisms,38930586
+PR3,1,1,,Frontiers in plant science,39091314
+PR4A,1,1,,Frontiers in plant science,39091314
+PR8A,1,1,,Frontiers in plant science,39091314
+PR8B,1,1,,Frontiers in plant science,39091314
+OsHPL3,1,1,,"Plants (Basel, Switzerland)",38891303
+cis-3-hexen-1-ol,1,1,,"Plants (Basel, Switzerland)",38891303
+cis-3-hexenal,1,1,,"Plants (Basel, Switzerland)",38891303
+Cas9-mediated,1,1,,International journal of molecular sciences,37834016
+Os03g50885,1,1,,International journal of molecular sciences,37958711
+OsACTIN,1,1,,International journal of molecular sciences,37958711
+OsCRN,1,1,,International journal of molecular sciences,37373210
+BPH30,1,1,,Frontiers in plant science,37404545
+GRH2,1,1,,Frontiers in plant science,37731986
+GRH4,1,1,,Frontiers in plant science,37731986
+GRH4-6,1,1,,Frontiers in plant science,37731986
+Gm1-Gm12,1,1,,Frontiers in plant science,37731986
+TR24SS,1,1,,International journal of molecular sciences,37762286
+TR94RR,1,1,,International journal of molecular sciences,37762286
+log2,1,1,,International journal of molecular sciences,37762286
+Bph38,1,1,,Frontiers in plant science,37731986
+GRH6,1,1,,Frontiers in plant science,37731986
+nivara_IRGC105715,1,1,,Frontiers in plant science,37731986
+qGRH4.2,1,1,,Frontiers in plant science,37731986
+Bph30,1,1,,Plant biotechnology journal,36952539
+OsCslF6-overexpressing,1,1,,Plant biotechnology journal,36952539
+OsCslF6-overexpressors,1,1,,Plant biotechnology journal,36952539
+OsLecRK1,1,1,,Plant biotechnology journal,36952539
+OsLecRK3,1,1,,Plant biotechnology journal,36952539
+BPH12,1,1,,Frontiers in plant science,37731986
+BPH13,1,1,,Frontiers in plant science,37731986
+BPH14,1,1,,Frontiers in plant science,37731986
+BPH15,1,1,,Frontiers in plant science,37731986
+BPH6,1,1,,Frontiers in plant science,37731986
+DESeq2,1,1,,International journal of molecular sciences,36499722
+HISAT2,1,1,,International journal of molecular sciences,36499722
+subread_v2.0.2,1,1,,International journal of molecular sciences,36499722
+cox2.The,1,1,,Frontiers in insect science,38468808
+nad1,1,1,,Frontiers in insect science,38468808
+MPK3,1,1,,International journal of molecular sciences,36499636
+MPK6,1,1,,International journal of molecular sciences,36499636
+MPKK10.2,1,1,,International journal of molecular sciences,36499636
+Os01g0820400,1,1,,International journal of molecular sciences,36499722
+Os01g0821600,1,1,,International journal of molecular sciences,36499722
+Os01g0862800,1,1,,International journal of molecular sciences,36499722
+Os02g0181300,1,1,,International journal of molecular sciences,36499722
+Os02g0770500,1,1,,International journal of molecular sciences,36499722
+Os03g0855100,1,1,,International journal of molecular sciences,36499722
+Os05g0321900,1,1,,International journal of molecular sciences,36499722
+Os05g0442700,1,1,,International journal of molecular sciences,36499722
+Os05g0478400,1,1,,International journal of molecular sciences,36499722
+Os05g0478700,1,1,,International journal of molecular sciences,36499722
+Os06g0649000,1,1,,International journal of molecular sciences,36499722
+Os08g0386200,1,1,,International journal of molecular sciences,36499722
+Os09g0417800,1,1,,International journal of molecular sciences,36499722
+Os11g0117400,1,1,,International journal of molecular sciences,36499722
+Os11g0117600,1,1,,International journal of molecular sciences,36499722
+Os11g0490900,1,1,,International journal of molecular sciences,36499722
+Os12g0156100,1,1,,International journal of molecular sciences,36499722
+Os12g0630800,1,1,,International journal of molecular sciences,36499722
+OsOsWRKY75,1,1,,International journal of molecular sciences,36499722
+OsWRKY104,1,1,,International journal of molecular sciences,36499722
+OsWRKY116,1,1,,International journal of molecular sciences,36499722
+OsWRKY24,1,1,,International journal of molecular sciences,36499722
+OsWRKY28,1,1,,International journal of molecular sciences,36499722
+OsWRKY32,1,1,,International journal of molecular sciences,36499722
+OsWRKY48,1,1,,International journal of molecular sciences,36499722
+OsWRKY50,1,1,,International journal of molecular sciences,36499722
+OsWRKY62,1,1,,International journal of molecular sciences,36499722
+OsWRKY69,1,1,,International journal of molecular sciences,36499722
+OsWRKY71,1,1,,International journal of molecular sciences,36499722
+OsWRKY72,1,1,,International journal of molecular sciences,36499722
+OsWRKY80,1,1,,International journal of molecular sciences,36499722
+OsWRKY84,1,1,,International journal of molecular sciences,36499722
+IR50404,1,1,,Insects,35886780
+ERF3,1,1,,International journal of molecular sciences,36499636
+KX670544,1,1,,International journal of molecular sciences,35897828
+OsWRKY11,1,1,,International journal of molecular sciences,36499722
+crysoeriol7,1,1,,International journal of molecular sciences,35163461
+WbphM1,1,1,,Insects,35323548
+WbphM2,1,1,,Insects,35323548
+bph5,1,1,,Insects,35323548
+bph7,1,1,,Insects,35323548
+OsNF-YAs,1,1,,PLoS pathogens,35560151
+S1C,1,1,,PLoS pathogens,35560151
+S1D,1,1,,PLoS pathogens,35560151
+LOC_Os07g12340,1,1,,International journal of molecular sciences,36499722
+Os07g0225300,1,1,,International journal of molecular sciences,36499722
+pathway-NPR1,1,1,,International journal of molecular sciences,35897828
+ATG3,1,1,,Insects,35447836
+ATG9,1,1,,Insects,35447836
+S10,1,1,,Insects,35447836
+S9-1,1,1,,Insects,35447836
+SfATG3,1,1,,Insects,35447836
+SfATG9,1,1,,Insects,35447836
+OsRBBI3-3,1,1,,International journal of molecular sciences,36499068
+TIGR01589,1,1,,"Rice (New York, N.Y.)",33677774
+AP2,1,1,,"Antioxidants (Basel, Switzerland)",34829563
+Os08g0474000,1,1,,"Antioxidants (Basel, Switzerland)",34829563
+OsI-BAK1,1,1,,International journal of molecular sciences,34830062
+OsActin,1,1,,"Plants (Basel, Switzerland)",33401742
+CNDH42,1,1,,Biology,34943188
+SRR10394595.JSB,1,1,,"Rice (New York, N.Y.)",33677774
+COI1,1,1,,"Plants (Basel, Switzerland)",33401742
+CNDH42-2,1,1,,Biology,34943188
+cq-9-treated,1,1,,Biology,34943188
+genes1,1,1,,Biology,34943188
+OsMYC3,1,1,,Proceedings of the National Academy of Sciences of the United States of America,33836579
+S21,1,1,,Proceedings of the National Academy of Sciences of the United States of America,33836579
+C29,1,1,,International journal of molecular sciences,34299353
+PR2.Another,1,1,,"Antioxidants (Basel, Switzerland)",34829551
+CYP408A3,1,1,,Biology,34440027
+CYP6CS3,1,1,,Biology,34440027
+LC50,1,1,,Biology,34440027
+SRR10394595.Not,1,1,,"Rice (New York, N.Y.)",33677774
+Wbph3,1,1,,"Plants (Basel, Switzerland)",33401742
+Wbph5,1,1,,"Plants (Basel, Switzerland)",33401742
+Wbph7,1,1,,"Plants (Basel, Switzerland)",33401742
+Wbph8,1,1,,"Plants (Basel, Switzerland)",33401742
+wbph4,1,1,,"Plants (Basel, Switzerland)",33401742
+OsWRKY13,1,1,,Scientific reports,32895423
+WARKY13,1,1,,Scientific reports,32895423
+OsDFR,1,1,,Scientific reports,32895423
+S1W,1,1,,Functional ecology,33612910
+E110,1,1,,Scientific reports,31700122
+E113,1,1,,Scientific reports,31700122
+N25,1,1,,Scientific reports,31700122
+N34,1,1,,Scientific reports,31700122
+CYP4FD2,1,1,,International journal of molecular sciences,31540185
+CYP6FD1,1,1,,International journal of molecular sciences,31540185
+IR36,1,1,,"Plants (Basel, Switzerland)",30696039
+Pusa-33,1,1,,"Plants (Basel, Switzerland)",30696039
+GRH5,1,1,,"Crop protection (Guildford, Surrey)",30739972
+R14,1,1,,"Crop protection (Guildford, Surrey)",30739972
+S3A,1,1,,"Crop protection (Guildford, Surrey)",30739972
+S3B,1,1,,"Crop protection (Guildford, Surrey)",30739972
+qGRH4-NIL,1,1,,"Crop protection (Guildford, Surrey)",30739972
+qGRH4-PYL,1,1,,"Crop protection (Guildford, Surrey)",30739972
+Tween-60,1,1,,International journal of molecular sciences,29695083
+L-1,1,1,,International journal of molecular sciences,29695083
+MH63,1,1,,Scientific reports,28740253
+T1C-19,1,1,,Scientific reports,28740253
+T2A-1,1,1,,Scientific reports,28740253
+TN1.Transgenic,1,1,,Scientific reports,28740253
+Qiuyou-998,1,1,,Virology journal,28789694
+N4-b,1,1,,Scientific reports,27492995
+Bph25,1,1,,"Rice (New York, N.Y.)",27300326
+Bph26,1,1,,"Rice (New York, N.Y.)",27300326
+IAA14,1,1,,International journal of molecular sciences,26633389
+LOC_Os06g09910,1,1,,BMC plant biology,24886295
+LOC_Os06g09930,1,1,,BMC plant biology,24886295
+Wbph3-5,1,1,,BMC plant biology,24886295
+LOC_Os06g09920,1,1,,BMC plant biology,24886295
+LOC_Os06g10010,1,1,,BMC plant biology,24886295
+LOC_Os06g10030,1,1,,BMC plant biology,24886295
+LOC_Os06g10050,1,1,,BMC plant biology,24886295
+LOC_Os06g10090,1,1,,BMC plant biology,24886295
+Bph14,1,1,,BMC plant biology,24886295
+GSE8811,1,1,,"Rice (New York, N.Y.)",24987489
+GSE9450,1,1,,"Rice (New York, N.Y.)",24987489
+plants.CJ06,1,1,,BMC plant biology,24886295
+OsHPL2,1,1,,The Plant journal : for cell and molecular biology,19891707
+H2SO4,1,1,,BMC plant biology,18854007
+MO-1,1,1,,BMC plant biology,18854007
+PTB33,1,1,,BMC plant biology,18854007
+TN-1,1,1,,BMC plant biology,18854007
+T49,1,1,,BMC plant biology,18854007
+T51,1,1,,BMC plant biology,18854007
+T63,1,1,,BMC plant biology,18854007
+BPT5204,1,1,,BMC plant biology,18854007
+Qbp1,1,1,,Heredity,14666132
+Qbp2,1,1,,Heredity,14666132

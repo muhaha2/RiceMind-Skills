@@ -1,0 +1,91 @@
+{
+  "plan": {
+    "language": "en",
+    "figures": [
+      {
+        "id": "candidate_mechanism_groups",
+        "type": "category_bar",
+        "source": "candidate_role_matrix.csv",
+        "category": "mechanism_group",
+        "split_values": false,
+        "top_n": 12,
+        "plot_title": "Mechanistic groups of planthopper resistance modifiers",
+        "xlabel": "Candidate count",
+        "color": "#4C78A8"
+      },
+      {
+        "id": "candidate_readiness_tradeoff",
+        "type": "grouped_bar",
+        "source": "candidate_role_matrix.csv",
+        "category": "candidate",
+        "values": [
+          "breeding_readiness",
+          "tradeoff_risk"
+        ],
+        "series_labels": {
+          "breeding_readiness": "Breeding readiness",
+          "tradeoff_risk": "Trade-off risk"
+        },
+        "aggregate": "max",
+        "top_n": 16,
+        "plot_title": "Breeding readiness and trade-off risk of prioritized candidates",
+        "xlabel": "Ordinal score (0-3)",
+        "colors": [
+          "#4C78A8",
+          "#F58518"
+        ]
+      },
+      {
+        "id": "selected_evidence_timeline",
+        "type": "timeline",
+        "source": "candidate_evidence_sentences.csv",
+        "year": "year",
+        "plot_title": "Publication timeline of representative RiceMind evidence",
+        "xlabel": "Publication year",
+        "ylabel": "Evidence sentences",
+        "color": "#54A24B"
+      }
+    ]
+  },
+  "figures": [
+    {
+      "id": "candidate_mechanism_groups",
+      "path": "work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\candidate_mechanism_groups.png",
+      "type": "category_bar",
+      "title": "Mechanistic groups of planthopper resistance modifiers",
+      "caption": "Candidate mechanism groups",
+      "section": "",
+      "section_keywords": [],
+      "subsection": "",
+      "placement": "end_of_section",
+      "width_percent": 88,
+      "max_height_inches": 6.4
+    },
+    {
+      "id": "candidate_readiness_tradeoff",
+      "path": "work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\candidate_readiness_tradeoff.png",
+      "type": "grouped_bar",
+      "title": "Breeding readiness and trade-off risk of prioritized candidates",
+      "caption": "Candidate readiness tradeoff",
+      "section": "",
+      "section_keywords": [],
+      "subsection": "",
+      "placement": "end_of_section",
+      "width_percent": 88,
+      "max_height_inches": 6.4
+    },
+    {
+      "id": "selected_evidence_timeline",
+      "path": "work\\planthopper_minor_loci\\report_output\\水稻飞虱微效位点报告_data\\figures\\selected_evidence_timeline.png",
+      "type": "timeline",
+      "title": "Publication timeline of representative RiceMind evidence",
+      "caption": "Selected evidence timeline",
+      "section": "",
+      "section_keywords": [],
+      "subsection": "",
+      "placement": "end_of_section",
+      "width_percent": 88,
+      "max_height_inches": 6.4
+    }
+  ]
+}

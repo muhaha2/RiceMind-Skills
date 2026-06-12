@@ -1,0 +1,3 @@
+display_name: RiceMind Evidence Profiler
+short_description: Integrated RiceMind skill for gene reports, trait landscapes, breeding questions, candidate ranking, and evidence networks.
+default_prompt: Use the integrated RiceMind evidence profiler to route this rice breeding or molecular biology question, retrieve RiceMind evidence, and produce a PMID-backed answer, report, ranking, or data bundle.
