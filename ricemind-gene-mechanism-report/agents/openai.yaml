@@ -1,4 +1,0 @@
-interface:
-  display_name: "RiceMind Gene Mechanism Report"
-  short_description: "Create polished fixed-template RiceMind DOCX reports with full sidecar data."
-  default_prompt: "Generate a fixed-template RiceMind evidence-grounded mechanism report for a rice gene. Use the RiceMind REST API at http://lit-evi.hzau.edu.cn/ricemind-api/, retrieve all pages with page/limit, preserve complete sidecar CSV/JSON data, but keep the DOCX concise: top-20 trait table, compact API call summary, review-style mechanism synthesis with bracket PMID citations, and SimSun/Times New Roman typography."
