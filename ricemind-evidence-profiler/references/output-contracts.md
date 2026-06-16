@@ -15,6 +15,12 @@ Choose the smallest output that answers the user request while preserving tracea
 
 ## Global Output Rules
 
+### Language and Typography
+
+Match the report language to the user's query: all-English requests produce English reports; Chinese requests produce primarily Chinese reports while preserving original RiceMind trait labels, sentence evidence, gene symbols, PMIDs, ontology IDs, evidence codes, source names, and technical terms when provenance is clearer in English.
+
+For styled reports, use SimSun/宋体 for Chinese text and Times New Roman for English/Latin-script text, numbers, PMIDs, URLs, gene symbols, and ontology IDs.
+
 ### Mechanism Writing
 
 Any output that describes a biological, genetic, molecular, physiological, agronomic, or breeding mechanism must follow `references/evidence-rules.md`, especially `## Mechanism Synthesis`. This requirement applies to concise answers, Markdown, DOCX reports, candidate rankings, network interpretations, and all task-specific modules.

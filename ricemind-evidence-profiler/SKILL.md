@@ -22,6 +22,12 @@ Use it for:
 
 Do not use the LLM as an independent source of rice biology. Treat RiceMind API responses, exported RiceMind JSON, and retrieved sentence evidence as the evidence substrate.
 
+## Global Language and Typography
+
+- If the user asks entirely in English, write generated reports in English.
+- If the user asks in Chinese, write generated reports primarily in Chinese while preserving original RiceMind trait labels, sentence evidence, gene symbols, PMIDs, ontology IDs, evidence codes, source names, and technical terms when provenance is clearer in English.
+- For styled reports, use SimSun/宋体 for Chinese text and Times New Roman for English/Latin-script text, numbers, PMIDs, URLs, gene symbols, and ontology IDs.
+
 ## Architecture
 
 Use a single skill with modular internal layers:
