@@ -16,6 +16,17 @@ Default output can be Markdown, DOCX, or sidecar data depending on user request.
 
 Create only sidecars that contain usable records. Remove empty, header-only, or zero-record artifacts after failed or empty retrievals.
 
+## Formal Mechanism Workflow
+
+For formal trait reports with usable Sentence Evidence, use a two-stage workflow:
+
+1. Run `scripts/build_trait_report.py --sidecars-only` to retrieve and normalize evidence. This writes the complete sentence-evidence CSV, candidate-gene CSV, mechanism evidence bundle, mechanism claim cards, and mechanism synthesis brief.
+2. Inspect the complete sentence-evidence CSV. Use the brief only as an evidence map, not as final prose.
+3. Write a personalized trait-centered mechanism Markdown that follows `references/evidence-rules.md`.
+4. Rerun the builder with `--mechanism-md {path}` to create the final Markdown report. Use `--allow-summary-only` only when the user explicitly wants a quick non-mechanistic summary.
+
+Trait-centered synthesis must not copy the single-gene report structure. Organize mechanisms around the trait's phenotype dimensions, candidate-gene groups, tissue/development/environment contexts, evidence strength, breeding relevance, tradeoffs, and evidence gaps.
+
 ## Sections
 
 1. Trait query interpretation

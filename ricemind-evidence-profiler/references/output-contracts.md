@@ -21,6 +21,10 @@ Match the report language to the user's query: all-English requests produce Engl
 
 For styled reports, use SimSun/宋体 for Chinese text and Times New Roman for English/Latin-script text, numbers, PMIDs, URLs, gene symbols, and ontology IDs.
 
+### DOCX Final Formatting Pass
+
+Before final delivery, apply a content-preserving formatting pass to every formal DOCX report. Check page orientation and margins, heading/body/caption styles, figure sizes, and table readability; wide tables should use controlled widths, repeated header rows, compact cell padding, and column allocation that keeps long evidence text readable. After formatting, verify that extracted report text, table cell content, and image count match the pre-formatting version.
+
 ### Mechanism Writing
 
 Any output that describes a biological, genetic, molecular, physiological, agronomic, or breeding mechanism must follow `references/evidence-rules.md`, especially `## Mechanism Synthesis`. This requirement applies to concise answers, Markdown, DOCX reports, candidate rankings, network interpretations, and all task-specific modules.
@@ -161,6 +165,8 @@ Expected deliverables:
 ## Trait-Centered Evidence Panorama
 
 Use for trait-first questions such as insect resistance, drought tolerance, nitrogen use efficiency, yield quality, or disease resistance.
+
+For formal trait-centered reports with usable Sentence Evidence, do not finalize the report from statistics alone. Use `scripts/build_trait_report.py --sidecars-only`, write a personalized trait-centered mechanism Markdown from the complete sentence evidence and mechanism brief, then rerun with `--mechanism-md`. The lightweight summary mode is only for quick non-mechanistic outputs.
 
 Recommended sections:
 

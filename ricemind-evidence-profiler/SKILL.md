@@ -28,6 +28,10 @@ Do not use the LLM as an independent source of rice biology. Treat RiceMind API 
 - If the user asks in Chinese, write generated reports primarily in Chinese while preserving original RiceMind trait labels, sentence evidence, gene symbols, PMIDs, ontology IDs, evidence codes, source names, and technical terms when provenance is clearer in English.
 - For styled reports, use SimSun/宋体 for Chinese text and Times New Roman for English/Latin-script text, numbers, PMIDs, URLs, gene symbols, and ontology IDs.
 
+## Global DOCX Finalization
+
+Before presenting any formal DOCX report, run a content-preserving formatting pass. Enforce the global font rules, consistent page layout, headings, body text, captions, figure sizing, and readable tables; for wide tables, use controlled column widths, repeated header rows, compact padding, and layout choices that prevent clipped or unreadable text. Verify that report text, table cell content, and image count are unchanged after formatting.
+
 ## Architecture
 
 Use a single skill with modular internal layers:
@@ -83,7 +87,7 @@ Use a single skill with modular internal layers:
    - Use `--markdown {report}.md` or `--docx {report}.docx` to place each figure beside the analysis it supports. Do not append all figures to a fixed terminal section, and do not leave a populated figures directory disconnected from the user-facing report.
    - For single-gene full DOCX reports, use the mandatory two-stage workflow in `references/gene-report-template.md`: first retrieve sidecars and the mechanism brief, then write a personalized PMID-backed mechanism Markdown from the complete Sentence Evidence, and only then build the DOCX with `--mechanism-md`.
    - Never use compact evidence-topic summaries as a substitute for the final mechanism synthesis.
-   - For trait-centered candidate reports, use `scripts/build_trait_report.py` and `references/trait-report-template.md`; the builder automatically generates and links task-neutral baseline trait figures, while formal personalized reports should use a report-specific figure plan.
+   - For trait-centered candidate reports, use `scripts/build_trait_report.py` and `references/trait-report-template.md`. For formal personalized trait reports, use the trait builder's two-stage workflow: first run `--sidecars-only` to write the complete sentence evidence, candidate table, mechanism evidence bundle, claim cards, and synthesis brief; then write a trait-centered, PMID-backed mechanism Markdown from the complete evidence and rerun with `--mechanism-md`. Use `--allow-summary-only` only for quick non-mechanistic summaries.
    - For breeding-objective questions, use `references/breeding-question-patterns.md`; combine trait scans and evidence ranking.
    - For evidence networks, use `scripts/build_evidence_network.py`.
 
